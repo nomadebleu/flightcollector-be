@@ -7,6 +7,7 @@ const badgeSchema = mongoose.Schema({
   description: String,
   points: Number,
   flights: [{ type: mongoose.Schema.Types.ObjectId, ref: 'flights' }],
+  users:[{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
 });
 
 //Model de Badges
