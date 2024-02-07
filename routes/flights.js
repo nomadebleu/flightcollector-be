@@ -16,14 +16,19 @@ router.post('/', async (req, res) => {
 
     //Déstructure le Sous Document
 
-    const{nbrePlaces, movies, meals} = services;
+    const { nbrePlaces, movies, meals } = services;
 
     const newFlight = new Flight({
       numeroReservation,
       planes,
       departure,
       arrival,
-      services:{
+      airport,
+      arrivalPlace,
+      departurePlace,
+      iataArrival,
+      iataDep,
+      services: {
         nbrePlaces,
         movies,
         meals,
@@ -40,8 +45,32 @@ router.post('/', async (req, res) => {
   }
 });
 
-//GET /places pour récuperer les flights
+//GET /places pour récuperer tout les flights
+router.get('/places', async (req, res) => {
+  try {
+    const flights = await Flight.find();
+    res.json(flights);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la récupération des vols" });
+  }
+});
 
 //GET /pour récupérer les planes
+router.get('/planes', async (req, res) => {
+  try {
+    // Récupérer tous les vols depuis la base de données
+    const flights = await Flight.find();
+
+    // Récupérer les ID des avions à partir de chaque vol
+    const planeIds = flights.map(flight => flight.planes).flat();
+
+    // Renvoyer les ID des avions récupérés
+    res.json(planeIds);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la récupération des avions" });
+  }
+});
 
 module.exports = router;

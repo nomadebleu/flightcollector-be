@@ -13,6 +13,11 @@ const flightSchema = mongoose.Schema({
   planes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'planes' }],
   departure: Date,
   arrival: Date,
+  airport : String,
+  arrivalPlace : String, 
+  departurePlace : String,
+  iataArrival : String,
+  iataDep : String,
   services: serviceSchema,
 });
 
