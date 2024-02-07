@@ -40,4 +40,8 @@ router.post('/', async (req, res) => {
   }
 });
 
+//GET /places pour récuperer les flights
+
+//GET /pour récupérer les planes
+
 module.exports = router;

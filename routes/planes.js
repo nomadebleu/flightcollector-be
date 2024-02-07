@@ -34,4 +34,8 @@ router.post('/', async (req, res) => {
   }
 });
 
+//GET /favoris Récuperer les favoris de Planes & les types d'aircrafts
+
+
+
 module.exports = router;
