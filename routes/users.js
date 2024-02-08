@@ -10,6 +10,30 @@ router.get('/', function(req, res) {
   res.json({result:true});
 });
 
+//Route GET pour récupérer toute les infos de l'utilisateur : 
+router.get('/userInfos/:userId', async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    // Utilisez la méthode findOne de Mongoose pour trouver l'utilisateur par ID
+    const user = await User.findById(userId)
+      .populate('badges') //.Populate()-permet de charger les documents référencés dans un champ de référence MongoDB.
+      .populate('flights')
+      .populate('planes');
+
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    // Répondez avec les informations de l'utilisateur récupérées
+    res.json({ user });
+  } catch (error) {
+    // En cas d'erreur, renvoyez une réponse d'erreur avec le code d'erreur approprié
+    console.error('Erreur lors de la récupération des informations de l\'utilisateur :', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des informations de l\'utilisateur' });
+  }
+});
+
 
 
 //PUT /password :Changer le password
@@ -87,29 +111,6 @@ router.post('/addBadges', async (req, res) => {
 
 
 
-//Route Get pour récupérer le nombre de total de point de l'utilisateur : 
-router.get('/userPointsTotal/:userId', async (req, res) => {
-  try {
-    // Récupérer l'ID de l'utilisateur à partir de la requête
-    const { userId } = req.params;
-
-    // Rechercher l'utilisateur dans la base de données
-    const user = await User.findById(userId);
-
-    // Vérifier si l'utilisateur existe
-    if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    // Renvoyer le nombre total de points de l'utilisateur
-    res.json({ totalPoints: user.pointsTotal });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur lors de la récupération du nombre total de points de l'utilisateur" });
-  }
-});
-
-
 
 //Route Put pour mettre à jour le nombre de point de l'utilisateur : 
 router.put('/pointsTotal/:userId', async (req, res) => {
@@ -142,35 +143,5 @@ router.put('/pointsTotal/:userId', async (req, res) => {
 
 
 
-
-// Route pour afficher les places visitées et le nombre de places visitées par l'utilisateur
-router.get('/placesVisited/:userId', async (req, res) => {
-  try {
-    // Récupérer l'ID de l'utilisateur à partir de la requête
-    const { userId } = req.params;
-
-    // Rechercher les vols de l'utilisateur dans la base de données
-    const userFlights = await Flight.find({ planes: userId });
-
-    // Initialiser un tableau pour stocker les places visitées uniques
-    const visitedPlaces = [];
-
-    // Parcourir les vols de l'utilisateur et ajouter les places visitées au tableau
-    userFlights.forEach(flight => {
-      if (!visitedPlaces.includes(flight.arrivalPlace)) {
-        visitedPlaces.push(flight.arrivalPlace);
-      }
-    });
-
-    // Nombre de places visitées par l'utilisateur
-    const placesVisitedCount = visitedPlaces.length;
-
-    // Renvoyer les places visitées et le nombre de places visitées par l'utilisateur en réponse
-    res.json({ visitedPlaces, placesVisitedCount });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur lors de la récupération des places visitées par l'utilisateur" });
-  }
-});
 
 module.exports = router;
