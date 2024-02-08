@@ -16,5 +16,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Route pour récupérer un badge par son ID
+router.get("/:id", async (req, res) => {
+  try {
+    const badge = await Badge.findById(req.params.id);
+    if (badge) {
+      res.json(badge);
+    } else {
+      res.status(404).json({ error: "Badge non trouvé" });
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération du badge :", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 
 module.exports = router;
