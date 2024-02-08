@@ -3,6 +3,7 @@ var router = express.Router();
 const User = require('../models/users'); 
 const bcrypt = require('bcrypt'); // Pour le hachage des mots de passe
 const Badge = require('../models/badges')
+const Flight = require('../models/flights')
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -85,28 +86,90 @@ router.post('/addBadges', async (req, res) => {
 });
 
 
-//GET /afficher les bagde obtenus de user
-router.get('/viewBadges/:userId', async (req, res) => {
+
+//Route Get pour récupérer le nombre de total de point de l'utilisateur : 
+router.get('/userPointsTotal/:userId', async (req, res) => {
   try {
-    // Récupérer l'identifiant de l'utilisateur à partir de la requête
+    // Récupérer l'ID de l'utilisateur à partir de la requête
     const { userId } = req.params;
 
     // Rechercher l'utilisateur dans la base de données
-    const user = await User.findById(userId).populate('badges');
+    const user = await User.findById(userId);
 
     // Vérifier si l'utilisateur existe
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
-    // Récupérer les badges obtenus par l'utilisateur
-    const badgesObtenus = user.badges;
+    // Renvoyer le nombre total de points de l'utilisateur
+    res.json({ totalPoints: user.pointsTotal });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la récupération du nombre total de points de l'utilisateur" });
+  }
+});
 
-    // Renvoyer une réponse avec les badges obtenus par l'utilisateur
-    res.json({ badgesObtenus });
-  } catch (error) {
-    console.error("Une erreur s'est produite :", error);
-    res.status(500).json({ error: "Erreur lors de la récupération des badges de l'utilisateur" });
+
+
+//Route Put pour mettre à jour le nombre de point de l'utilisateur : 
+router.put('/pointsTotal/:userId', async (req, res) => {
+  try {
+    // Récupérer l'ID de l'utilisateur à partir de la requête
+    const { userId } = req.params;
+
+    // Récupérer les nouveaux points à partir du corps de la requête
+    const { newTotalPoints } = req.body;
+
+    // Rechercher l'utilisateur dans la base de données
+    const user = await User.findById(userId);
+
+    // Vérifier si l'utilisateur existe
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Mettre à jour le nombre total de points de l'utilisateur
+    user.pointsTotal = newTotalPoints;
+    await user.save();
+
+    // Renvoyer une réponse de succès
+    res.json({ message: "Nombre de points de l'utilisateur mis à jour avec succès" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la mise à jour du nombre total de points de l'utilisateur" });
+  }
+});
+
+
+
+
+// Route pour afficher les places visitées et le nombre de places visitées par l'utilisateur
+router.get('/placesVisited/:userId', async (req, res) => {
+  try {
+    // Récupérer l'ID de l'utilisateur à partir de la requête
+    const { userId } = req.params;
+
+    // Rechercher les vols de l'utilisateur dans la base de données
+    const userFlights = await Flight.find({ planes: userId });
+
+    // Initialiser un tableau pour stocker les places visitées uniques
+    const visitedPlaces = [];
+
+    // Parcourir les vols de l'utilisateur et ajouter les places visitées au tableau
+    userFlights.forEach(flight => {
+      if (!visitedPlaces.includes(flight.arrivalPlace)) {
+        visitedPlaces.push(flight.arrivalPlace);
+      }
+    });
+
+    // Nombre de places visitées par l'utilisateur
+    const placesVisitedCount = visitedPlaces.length;
+
+    // Renvoyer les places visitées et le nombre de places visitées par l'utilisateur en réponse
+    res.json({ visitedPlaces, placesVisitedCount });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la récupération des places visitées par l'utilisateur" });
   }
 });
 

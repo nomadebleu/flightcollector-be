@@ -71,6 +71,24 @@ router.get('/planes', async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Erreur lors de la récupération des avions" });
   }
+}); 
+
+
+//Route /Get pour récupérer les iatas : 
+router.get('/iata', async (req, res) => {
+  try {
+    // la méthode distinct de Mongoose pour récupérer les codes IATA uniques
+    const iataDepartures = await Flight.distinct('iataDep');
+    const iataArrivals = await Flight.distinct('iataArrival');
+
+    // Réponse avec les codes IATA récupérés
+    res.json({ departures: iataDepartures, arrivals: iataArrivals });
+  } catch (error) {
+    // En cas d'erreur, renvoyez une réponse d'erreur avec le code d'erreur approprié
+    console.error('Erreur lors de la récupération des codes IATA :', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des codes IATA' });
+  }
 });
+
 
 module.exports = router;
