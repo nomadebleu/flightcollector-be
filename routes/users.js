@@ -40,31 +40,25 @@ router.get('/userInfos/:userId', async (req, res) => {
 router.put('/password', async (req, res) => {
   try {
     // Récupérer les données du corps de la requête
-    const { userId, oldPassword, newPassword } = req.body;
+    const { mail, newPassword } = req.body;
 
     // Recherchez l'utilisateur dans la base de données
-    const user = await User.findById(userId);
+    const data = await User.findOne({ mail });
 
     // Vérifiez si l'utilisateur existe
-    if (!user) {
+    if (!data) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    // Vérifiez si l'ancien mot de passe correspond au mot de passe enregistré dans la base de données
-    const passwordMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!passwordMatch) {
-      return res.status(400).json({ message: "Le mot de passe actuel est incorrect" });
     }
 
     // Hachez le nouveau mot de passe
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     // Mettez à jour le mot de passe de l'utilisateur dans la base de données
-    user.password = hashedNewPassword;
-    await user.save();
+    data.password = hashedNewPassword;
+    await data.save();
 
     // Renvoyez une réponse de succès
-    res.json({ message: "Mot de passe mis à jour avec succès" });
+    res.json({ result:true, message: "Password updated successfully" });
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
     res.status(500).json({ error: "Erreur lors de la mise à jour du mot de passe" });
