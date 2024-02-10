@@ -37,13 +37,10 @@ router.post('/', async (req, res) => {
 //Route get pour récupérer tout les planes :
 router.get('/allPlanes', async (req, res) => {
   try {
-    // Utilisez la méthode find de Mongoose pour récupérer tous les avions
     const planes = await Plane.find();
-
-    // Répondez avec les avions récupérés
     res.json({ planes });
   } catch (error) {
-    // En cas d'erreur, renvoyez une réponse d'erreur avec le code d'erreur approprié
+    // En cas d'erreur, réponse d'erreur avec le code d'erreur approprié
     console.error('Erreur lors de la récupération des avions :', error);
     res.status(500).json({ error: 'Erreur lors de la récupération des avions' });
   }
@@ -59,7 +56,7 @@ router.get('/favoris', async (req, res) => {
     // Récupérer les types d'avions distincts
     const typesAircrafts = await Plane.distinct('type');
 
-    // Renvoyer les avions récupérés et les types d'avions distincts
+    // avions récupérés et les types d'avions distincts
     res.json({ result : true, isFavorite : favorisAvions.length, typesAircrafts : typesAircrafts.length });
   } catch (err) {
     console.error(err);
