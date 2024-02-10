@@ -11,30 +11,34 @@ router.get('/', function(req, res) {
 });
 
 //Route GET pour récupérer toute les infos de l'utilisateur : 
-router.get('/userInfos/:userId', async (req, res) => {
+router.put('/:userId/flight', async (req, res) => {
   const userId = req.params.userId;
+  const { flight } = req.body; // Les nouveaux vols à assigner à l'utilisateur
 
   try {
-    // Utilisez la méthode findOne de Mongoose pour trouver l'utilisateur par ID
-    const user = await User.findById(userId)
-      .populate('badges') //.Populate()-permet de charger les documents référencés dans un champ de référence MongoDB.
-      .populate('flights')
-      .populate('planes');
+    // Mettre à jour les vols de l'utilisateur dans la collection User
+    const updateResult = await User.updateOne(
+      { _id: userId }, // Filtrer l'utilisateur par son ID
+      { $set: { flights: flight } } // Remplacer les vols de l'utilisateur par les nouveaux vols
+    );
 
-    if (!user) {
+    if (updateResult.nModified === 0) {
+      // Aucune modification effectuée, utilisateur non trouvé
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
-    // Répondez avec les informations de l'utilisateur récupérées
-    res.json({ user });
+    // Répondre avec un message indiquant que les vols de l'utilisateur ont été mis à jour avec succès
+    res.status(200).json({ message: 'Les vols de l\'utilisateur ont été mis à jour avec succès' });
   } catch (error) {
-    // En cas d'erreur, renvoyez une réponse d'erreur avec le code d'erreur approprié
-    console.error('Erreur lors de la récupération des informations de l\'utilisateur :', error);
-    res.status(500).json({ error: 'Erreur lors de la récupération des informations de l\'utilisateur' });
+    // En cas d'erreur, renvoyer une réponse d'erreur avec le code d'erreur approprié
+    console.error('Erreur lors de la mise à jour des vols de l\'utilisateur :', error);
+    res.status(500).json({ error: 'Erreur lors de la mise à jour des vols de l\'utilisateur' });
   }
 });
 
 
+
+/*Route PUT */
 
 //PUT /password :Changer le password
 router.put('/password', async (req, res) => {
@@ -50,7 +54,7 @@ router.put('/password', async (req, res) => {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
-    // Hachez le nouveau mot de passe
+    // Hache le nouveau mot de passe
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     // Mettez à jour le mot de passe de l'utilisateur dans la base de données
@@ -65,9 +69,39 @@ router.put('/password', async (req, res) => {
   }
 });
 
+//Route Put pour mettre à jour le nombre de point de l'utilisateur : 
+router.put('/pointsTotal/:userId', async (req, res) => {
+  try {
+    // Récupére l'ID de l'utilisateur à partir de la requête
+    const { userId } = req.params;
+
+    // Récupére les nouveaux points à partir du corps de la requête
+    const { newTotalPoints } = req.body;
+
+    // Rechercher l'utilisateur dans la base de données
+    const user = await User.findById(userId);
+
+    // Vérifier si l'utilisateur existe
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Mettre à jour le nombre total de points de l'utilisateur
+    user.pointsTotal = newTotalPoints;
+    await user.save();
+
+    // Renvoyer une réponse de succès
+    res.json({ message: "Nombre de points de l'utilisateur mis à jour avec succès" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la mise à jour du nombre total de points de l'utilisateur" });
+  }
+});
+
+
+/*Route POST */
 
 //POST /ajouter un badge à la BADGES de user
-
 router.post('/addBadges', async (req, res) => {
   try {
     // Récupérer les données du corps de la requête
@@ -79,6 +113,11 @@ router.post('/addBadges', async (req, res) => {
     // Vérifier si l'utilisateur existe
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Vérifier si l'utilisateur possède déjà le badge
+    if (user.badges.includes(badgeId)) {
+      return res.status(400).json({ message: "L'utilisateur possède déjà ce badge" });
     }
 
     // Rechercher le badge dans la base de données
@@ -104,34 +143,81 @@ router.post('/addBadges', async (req, res) => {
 });
 
 
-
-
-//Route Put pour mettre à jour le nombre de point de l'utilisateur : 
-router.put('/pointsTotal/:userId', async (req, res) => {
+router.post('/associateFlights/:userId', async (req, res) => {
   try {
-    // Récupérer l'ID de l'utilisateur à partir de la requête
-    const { userId } = req.params;
+    const userId = req.params.userId;
+    const { flightIds } = req.body;
 
-    // Récupérer les nouveaux points à partir du corps de la requête
-    const { newTotalPoints } = req.body;
-
-    // Rechercher l'utilisateur dans la base de données
+    // Recherche de l'utilisateur dans la base de données
     const user = await User.findById(userId);
-
-    // Vérifier si l'utilisateur existe
     if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
-    // Mettre à jour le nombre total de points de l'utilisateur
-    user.pointsTotal = newTotalPoints;
+    // Associer les vols à l'utilisateur
+    user.flights = flightIds; 
+    // Enregistrer les modifications dans la base de données
     await user.save();
 
-    // Renvoyer une réponse de succès
-    res.json({ message: "Nombre de points de l'utilisateur mis à jour avec succès" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur lors de la mise à jour du nombre total de points de l'utilisateur" });
+    return res.status(200).json({ message: 'Vols associés à l\'utilisateur avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de l\'association des vols à l\'utilisateur :', error);
+    return res.status(500).json({ error: 'Erreur serveur lors de l\'association des vols à l\'utilisateur' });
+  }
+});
+
+
+router.post('/associateFlights2/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { flightIds } = req.body; 
+
+    // Recherche de l'utilisateur dans la base de données
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    // Fusionner les nouveaux vols avec les vols existants de l'utilisateur
+    user.flights = [...user.flights, ...flightIds]; 
+
+    // Enregistre les modifications dans la base de données
+    await user.save();
+
+    return res.status(200).json({ message: 'Vols associés à l\'utilisateur avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de l\'association des vols à l\'utilisateur :', error);
+    return res.status(500).json({ error: 'Erreur serveur lors de l\'association des vols à l\'utilisateur' });
+  }
+});
+
+
+
+
+
+/*Route GET */
+
+// Route pour récupérer les infos de tous les vols de l'utilisateur
+router.get('/userFlightInfo/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Recherche de l'utilisateu r dans la base de données avec tous les vols associés
+    const user = await User.findById(userId).populate('flights'); 
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    // Si l'utilisateur n'a pas de vol associé
+    if (!user.flights || user.flights.length === 0) {
+      return res.status(400).json({ error: 'L\'utilisateur n\'a pas de vol associé' });
+    }
+
+    // Renvoyer toutes les informations des vols associés
+    return res.status(200).json({ flightsInfo: user.flights });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des infos des vols de l\'utilisateur :', error);
+    return res.status(500).json({ error: 'Erreur serveur lors de la récupération des infos des vols de l\'utilisateur' });
   }
 });
 

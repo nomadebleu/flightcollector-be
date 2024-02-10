@@ -50,18 +50,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-//GET /places pour récuperer tout les flights
-router.get('/places', async (req, res) => {
-  try {
-    const flights = await Flight.find();
-    res.json(flights);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur lors de la récupération des vols" });
-  }
-});
-
-
 
 
 
