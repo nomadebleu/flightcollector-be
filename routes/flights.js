@@ -12,6 +12,11 @@ router.post('/', async (req, res) => {
       departure,
       arrival,
       services,
+      airport,
+      arrivalPlace,
+      departurePlace,
+      iataArrival,
+      iataDep,
     } = req.body;
 
     //Déstructure le Sous Document
