@@ -17,14 +17,15 @@ router.post('/signup', async (req, res) => {
     const { firstname, lastname, password, mail } = req.body;
     const hash = bcrypt.hashSync(password, 10); // Utilise bcrypt.hashSync pour hacher le mdp
 
-    if (!checkBody(req.body, ['firstname', 'lastname', 'mail', 'password'])) {
-      res.json({ result: false, error: 'Missing or empty fields' });
-      return;
-    }
-     // Validation du mot de passe avec Maj/Number/Special Caracter
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      res.json({ result: false, error: 'Password must contain at least 8 characters, including uppercase, lowercase, digit, and special character' });
+    const { result, errors } = checkBody(req.body, [
+      'firstname',
+      'lastname',
+      'mail',
+      'password',
+    ]);
+
+    if (!result) {
+      res.json({ result: false, errors }); // Renvoie les erreurs
       return;
     }
 
@@ -58,6 +59,15 @@ router.post('/signin', async (req, res) => {
 
     if (!checkBody(req.body, ['mail', 'password'])) {
       res.json({ result: false, error: 'Missing or empty fields' });
+      return;
+    }
+    const { result, errors } = checkBody(req.body, [
+      'mail',
+      'password',
+    ]);
+
+    if (!result) {
+      res.json({ result: false, errors }); // Renvoie les erreurs
       return;
     }
 
