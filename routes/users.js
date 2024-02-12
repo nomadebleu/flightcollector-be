@@ -149,31 +149,8 @@ router.post('/addBadges', async (req, res) => {
 });
 
 
+
 router.post('/associateFlights/:userId', async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const { flightIds } = req.body;
-
-    // Recherche de l'utilisateur dans la base de données
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    }
-
-    // Associer les vols à l'utilisateur
-    user.flights = flightIds; 
-    // Enregistrer les modifications dans la base de données
-    await user.save();
-
-    return res.status(200).json({ message: 'Vols associés à l\'utilisateur avec succès' });
-  } catch (error) {
-    console.error('Erreur lors de l\'association des vols à l\'utilisateur :', error);
-    return res.status(500).json({ error: 'Erreur serveur lors de l\'association des vols à l\'utilisateur' });
-  }
-});
-
-
-router.post('/associateFlights2/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
     const { flightIds } = req.body; 
