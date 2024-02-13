@@ -8,10 +8,11 @@ const userSchema = mongoose.Schema({
   token: String,
   pictureProfil: String,
   password: String,
-  pointsTotal: Number,
+  totalPoints: Number,
   badges:[{ type: mongoose.Schema.Types.ObjectId, ref: 'badges' }],
   flights:[{ type: mongoose.Schema.Types.ObjectId, ref: 'flights' }],
   planes:[{ type: mongoose.Schema.Types.ObjectId, ref: 'planes' }],
+  isConnected:Boolean,
 });
 
 //Model de Users
