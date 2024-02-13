@@ -40,7 +40,7 @@ router.put('/:userId/flight', async (req, res) => {
 
 /*Route PUT */
 
-//PUT /password :Changer le password
+//MODIFIER LE PASSWORD
 router.put('/password', async (req, res) => {
   try {
     // Récupérer les données du corps de la requête
