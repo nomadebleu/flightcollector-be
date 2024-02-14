@@ -43,9 +43,12 @@ router.post('/signup', async (req, res) => {
         token: uid2(32),
         totalPoints:0,
         isConnected:true,
+        badges:['65c25ff23511d200c07c0a95']
       });
 
-      const data = await newUser.save();
+      const data = await newUser
+      .save()
+   
       res.json({ result: true, data });
     }
   } catch (error) {
