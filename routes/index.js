@@ -41,8 +41,6 @@ router.post('/signup', async (req, res) => {
         password: hash, // Utilisez le nouveau hachage généré
         mail,
         token: uid2(32),
-        isConnected:true,
-        totalPoints:0,
       });
 
       const userData = await newUser.save();
