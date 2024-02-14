@@ -30,9 +30,9 @@ router.post('/signup', async (req, res) => {
     }
 
     //On utilise le mail pour avoir un identifiant unique au lieu du password qui est haché
-    const userData = await User.findOne({ mail });
+    const data = await User.findOne({ mail });
 
-    if (userData) {
+    if (data) {
       res.json({ result: false, error: 'User already exists' });
     } else {
       const newUser = new User({
@@ -41,10 +41,12 @@ router.post('/signup', async (req, res) => {
         password: hash, // Utilisez le nouveau hachage généré
         mail,
         token: uid2(32),
+        totalPoints:0,
+        isConnected:true,
       });
 
-      const userData = await newUser.save();
-      res.json({ result: true, userData });
+      const data = await newUser.save();
+      res.json({ result: true, data });
     }
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
@@ -71,10 +73,14 @@ router.post('/signin', async (req, res) => {
       return;
     }
 
-    const userData = await User.findOne({ mail });
+    const data = await User
+    .findOne({ mail })
+    .populate('badges')
+    .populate('flights')
+    .populate('planes');
 
-    if (userData && bcrypt.compareSync(password, userData.password)) {
-      res.json({ result: true, userData });
+    if (data && bcrypt.compareSync(password, data.password)) {
+      res.json({ result: true, data });
     } else {
       res.json({ result: false, error: 'Mail or Password invalid' });
     }
