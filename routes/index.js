@@ -12,7 +12,6 @@ const bcrypt = require('bcrypt');
 
 // SIGNUP
 router.post('/signup', async (req, res) => {
-  console.log('ok');
   try {
     const { firstname, lastname, password, mail } = req.body;
     const hash = bcrypt.hashSync(password, 10); // Utilise bcrypt.hashSync pour hacher le mdp
