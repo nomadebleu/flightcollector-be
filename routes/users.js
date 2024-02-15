@@ -1,12 +1,12 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-const User = require('../models/users'); 
-const bcrypt = require('bcrypt'); // Pour le hachage des mots de passe
-const Badge = require('../models/badges')
-const Flight = require('../models/flights')
+const User = require("../models/users");
+const bcrypt = require("bcrypt"); // Pour le hachage des mots de passe
+const Badge = require("../models/badges");
+const Flight = require("../models/flights");
 
 //Modifier le password OK
-router.put('/password', async (req, res) => {
+router.put("/password", async (req, res) => {
   try {
     // Récupérer les données du corps de la requête
     const { mail, newPassword } = req.body;
@@ -27,15 +27,49 @@ router.put('/password', async (req, res) => {
     await data.save();
 
     // Renvoyez une réponse de succès
-    res.json({ result:true, message: "Password updated successfully" });
+    res.json({ result: true, message: "Password updated successfully" });
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
-    res.status(500).json({ error: "Erreur lors de la mise à jour du mot de passe" });
+    res
+      .status(500)
+      .json({ error: "Erreur lors de la mise à jour du mot de passe" });
+  }
+});
+
+//Ajout des points du badge au totalPoints du user OK
+router.put("/addPoints", async (req, res) => {
+  try {
+    // Récupére les nouveaux points à partir du corps de la requête
+    const { userId, pointsToAdd } = req.body;
+
+    // Rechercher l'utilisateur dans la base de données
+    const data = await User.findById(userId);
+
+    // Vérifier si l'utilisateur existe
+    if (!data) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Mettre à jour le nombre total de points de l'utilisateur
+    data.totalPoints += pointsToAdd;
+    await data.save();
+
+    // Renvoyer une réponse de succès
+    res.json({
+      result: true,
+      message: "Nombre de points de l'utilisateur mis à jour avec succès",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message:
+        "Erreur lors de la mise à jour du nombre total de points de l'utilisateur",
+    });
   }
 });
 
 // Ajout d'un badge à un User OK
-router.post('/addBadges', async (req, res) => {
+router.post("/addBadges", async (req, res) => {
   try {
     // Récupérer les données du corps de la requête
     const { userId, badgeId } = req.body;
@@ -50,7 +84,9 @@ router.post('/addBadges', async (req, res) => {
 
     // Vérifier si l'utilisateur possède déjà le badge
     if (user.badges.includes(badgeId)) {
-      return res.status(400).json({ message: "L'utilisateur possède déjà ce badge" });
+      return res
+        .status(400)
+        .json({ message: "L'utilisateur possède déjà ce badge" });
     }
 
     // Rechercher le badge dans la base de données
@@ -71,7 +107,9 @@ router.post('/addBadges', async (req, res) => {
     res.json({ message: "Badge ajouté avec succès à l'utilisateur" });
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
-    res.status(500).json({ error: "Erreur lors de l'ajout du badge à l'utilisateur" });
+    res
+      .status(500)
+      .json({ error: "Erreur lors de l'ajout du badge à l'utilisateur" });
   }
 });
 
@@ -89,93 +127,85 @@ router.put('/:userId/flight', async (req, res) => {
 
     if (updateResult.nModified === 0) {
       // Aucune modification effectuée, utilisateur non trouvé
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
 
     // Répondre avec un message indiquant que les vols de l'utilisateur ont été mis à jour avec succès
-    res.status(200).json({ message: 'Les vols de l\'utilisateur ont été mis à jour avec succès' });
+    res.status(200).json({
+      message: "Les vols de l'utilisateur ont été mis à jour avec succès",
+    });
   } catch (error) {
     // En cas d'erreur, renvoyer une réponse d'erreur avec le code d'erreur approprié
-    console.error('Erreur lors de la mise à jour des vols de l\'utilisateur :', error);
-    res.status(500).json({ error: 'Erreur lors de la mise à jour des vols de l\'utilisateur' });
+    console.error(
+      "Erreur lors de la mise à jour des vols de l'utilisateur :",
+      error
+    );
+    res.status(500).json({
+      error: "Erreur lors de la mise à jour des vols de l'utilisateur",
+    });
   }
 });
 
-//Route Put pour mettre à jour le nombre de point de l'utilisateur : 
-router.put('/pointsTotal/:userId', async (req, res) => {
-  try {
-    // Récupére l'ID de l'utilisateur à partir de la requête
-    const { userId } = req.params;
-
-    // Récupére les nouveaux points à partir du corps de la requête
-    const { newTotalPoints } = req.body;
-
-    // Rechercher l'utilisateur dans la base de données
-    const user = await User.findById(userId);
-
-    // Vérifier si l'utilisateur existe
-    if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    // Mettre à jour le nombre total de points de l'utilisateur
-    user.pointsTotal = newTotalPoints;
-    await user.save();
-
-    // Renvoyer une réponse de succès
-    res.json({ message: "Nombre de points de l'utilisateur mis à jour avec succès" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur lors de la mise à jour du nombre total de points de l'utilisateur" });
-  }
-});
-
-router.post('/associateFlights/:userId', async (req, res) => {
+router.post("/associateFlights/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { flightIds } = req.body; 
+    const { flightIds } = req.body;
 
     // Recherche de l'utilisateur dans la base de données
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
 
     // Fusionner les nouveaux vols avec les vols existants de l'utilisateur
-    user.flights = [...user.flights, ...flightIds]; 
+    user.flights = [...user.flights, ...flightIds];
 
     // Enregistre les modifications dans la base de données
     await user.save();
 
-    return res.status(200).json({ message: 'Vols associés à l\'utilisateur avec succès' });
+    return res
+      .status(200)
+      .json({ message: "Vols associés à l'utilisateur avec succès" });
   } catch (error) {
-    console.error('Erreur lors de l\'association des vols à l\'utilisateur :', error);
-    return res.status(500).json({ error: 'Erreur serveur lors de l\'association des vols à l\'utilisateur' });
+    console.error(
+      "Erreur lors de l'association des vols à l'utilisateur :",
+      error
+    );
+    return res.status(500).json({
+      error: "Erreur serveur lors de l'association des vols à l'utilisateur",
+    });
   }
 });
 
-
 // Route pour récupérer les infos de tous les vols de l'utilisateur
-router.get('/userFlightInfo/:userId', async (req, res) => {
+router.get("/userFlightInfo/:userId", async (req, res) => {
   try {
     const userId = req.query.userId;
 
     // Recherche de l'utilisateu r dans la base de données avec tous les vols associés
-    const user = await User.findById(userId).populate('flights'); 
+    const user = await User.findById(userId).populate("flights");
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
 
     // Si l'utilisateur n'a pas de vol associé
     if (!user.flights || user.flights.length === 0) {
-      return res.status(400).json({ error: 'L\'utilisateur n\'a pas de vol associé' });
+      return res
+        .status(400)
+        .json({ error: "L'utilisateur n'a pas de vol associé" });
     }
 
     // Renvoyer toutes les informations des vols associés
     return res.status(200).json({ flightsInfo: user.flights });
   } catch (error) {
-    console.error('Erreur lors de la récupération des infos des vols de l\'utilisateur :', error);
-    return res.status(500).json({ error: 'Erreur serveur lors de la récupération des infos des vols de l\'utilisateur' });
+    console.error(
+      "Erreur lors de la récupération des infos des vols de l'utilisateur :",
+      error
+    );
+    return res.status(500).json({
+      error:
+        "Erreur serveur lors de la récupération des infos des vols de l'utilisateur",
+    });
   }
 });
 

@@ -1,7 +1,10 @@
+require('dotenv').config();
 require('../models/connection');
 var express = require('express');
 var router = express.Router();
 const Flight = require('../models/flights');
+
+const apiKeyMovies = process.env.API_KEY_MOVIES;
 
 //POST pour enregistrer un flight
 router.post('/', async (req, res) => {
@@ -50,8 +53,15 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-
+//Pour avoir des films
+router.get('/movies', (req,res) => {
+    
+  fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKeyMovies}`)
+      .then(response => response.json())
+      .then(data => {
+          res.json({movies:data.results});
+      })
+})
 
 
 
