@@ -59,7 +59,8 @@ router.get('/movies', (req,res) => {
   fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKeyMovies}`)
       .then(response => response.json())
       .then(data => {
-          res.json({movies:data.results});
+        console.log('data',data.results.length)
+          res.json({movies:data.results.sort(() => Math.random() - 0.5)});
       })
 })
 
