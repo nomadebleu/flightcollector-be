@@ -36,6 +36,38 @@ router.put("/password", async (req, res) => {
   }
 });
 
+//Ajout des points du badge au totalPoints du user OK
+router.put("/addPoints", async (req, res) => {
+  try {
+    // Récupére les nouveaux points à partir du corps de la requête
+    const { userId, pointsToAdd } = req.body;
+
+    // Rechercher l'utilisateur dans la base de données
+    const data = await User.findById(userId);
+
+    // Vérifier si l'utilisateur existe
+    if (!data) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Mettre à jour le nombre total de points de l'utilisateur
+    data.totalPoints += pointsToAdd;
+    await data.save();
+
+    // Renvoyer une réponse de succès
+    res.json({
+      result: true,
+      message: "Nombre de points de l'utilisateur mis à jour avec succès",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message:
+        "Erreur lors de la mise à jour du nombre total de points de l'utilisateur",
+    });
+  }
+});
+
 // Ajout d'un badge à un User OK
 router.post("/addBadges", async (req, res) => {
   try {
@@ -99,58 +131,18 @@ router.put("/:userId/flight", async (req, res) => {
     }
 
     // Répondre avec un message indiquant que les vols de l'utilisateur ont été mis à jour avec succès
-    res
-      .status(200)
-      .json({
-        message: "Les vols de l'utilisateur ont été mis à jour avec succès",
-      });
+    res.status(200).json({
+      message: "Les vols de l'utilisateur ont été mis à jour avec succès",
+    });
   } catch (error) {
     // En cas d'erreur, renvoyer une réponse d'erreur avec le code d'erreur approprié
     console.error(
       "Erreur lors de la mise à jour des vols de l'utilisateur :",
       error
     );
-    res
-      .status(500)
-      .json({
-        error: "Erreur lors de la mise à jour des vols de l'utilisateur",
-      });
-  }
-});
-
-//Route Put pour mettre à jour le nombre de point de l'utilisateur :
-router.put("/pointsTotal/:userId", async (req, res) => {
-  try {
-    // Récupére l'ID de l'utilisateur à partir de la requête
-    const { userId } = req.params;
-
-    // Récupére les nouveaux points à partir du corps de la requête
-    const { newTotalPoints } = req.body;
-
-    // Rechercher l'utilisateur dans la base de données
-    const user = await User.findById(userId);
-
-    // Vérifier si l'utilisateur existe
-    if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    // Mettre à jour le nombre total de points de l'utilisateur
-    user.pointsTotal = newTotalPoints;
-    await user.save();
-
-    // Renvoyer une réponse de succès
-    res.json({
-      message: "Nombre de points de l'utilisateur mis à jour avec succès",
+    res.status(500).json({
+      error: "Erreur lors de la mise à jour des vols de l'utilisateur",
     });
-  } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({
-        message:
-          "Erreur lors de la mise à jour du nombre total de points de l'utilisateur",
-      });
   }
 });
 

@@ -40,9 +40,9 @@ router.post("/signup", async (req, res) => {
     }
 
     //On utilise le mail pour avoir un identifiant unique au lieu du password qui est haché
-    const data = await User.findOne({ mail });
+    const existingUser = await User.findOne({ mail });
 
-    if (data) {
+    if (existingUser) {
       res.json({ result: false, error: "User already exists" });
     } else {
       const newUser = new User({
@@ -53,10 +53,14 @@ router.post("/signup", async (req, res) => {
         token: uid2(32),
         totalPoints: 0,
         isConnected: true,
+        badges: ["65c25ff23511d200c07c0a95"],
       });
 
-      const data = await newUser.save();
-      res.json({ result: true, data });
+      const savedUser = await newUser.save();
+      //Populate pour récupérer les valeurs du badge
+      const populatedUser = await User.populate(savedUser, { path: "badges" });
+
+      res.json({ result: true, data: populatedUser });
     }
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
