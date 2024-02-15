@@ -57,21 +57,13 @@ router.post("/", async (req, res) => {
 //Pour avoir des films
 router.get("/movies", (req, res) => {
   fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKeyMovies}`)
-    .then((response) => response.json())
-    .then((data) => {
-      res.json({ movies: data.results });
-    });
-});
+      .then(response => response.json())
+      .then(data => {
+        console.log('data',data.results.length)
+          res.json({movies:data.results.sort(() => Math.random() - 0.5)});
+      })
+})
 
-//Pour avoir les flight
-router.get("/flight", (req, res) => {
-  fetch(`https://api.aviationstack.com/v1/flights
-    ? access_key = ${apiKeyFlight}
-    & flight_number = 0603`)
-    .then((response) => response.json())
-    .then((data) => {
-      res.json({ flight: data });
-    });
-});
+
 
 module.exports = router;
