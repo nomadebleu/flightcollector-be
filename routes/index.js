@@ -10,7 +10,7 @@ const token = uid2(32);
 
 const bcrypt = require("bcrypt");
 
-const cloudinary = require("cloudinary").v2;
+/*const cloudinary = require("cloudinary").v2;
 const uniqid = require("uniqid");
 const fs = require("fs");
 
@@ -18,7 +18,7 @@ cloudinary.config({
   cloud_name: "ddreb3nm6",
   api_key: "342387261832956",
   api_secret: "lzxO7d6dYHFjVbjLR8veX1A9b-8",
-});
+});*/
 
 // SIGNUP
 router.post("/signup", async (req, res) => {
