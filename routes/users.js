@@ -75,7 +75,7 @@ router.post('/addBadges', async (req, res) => {
   }
 });
 
-//Route GET pour récupérer toute les infos de l'utilisateur : 
+//Route put pour modifié les flights de l'utilisateur: 
 router.put('/:userId/flight', async (req, res) => {
   const userId = req.params.userId;
   const { flight } = req.body; // Les nouveaux vols à assigner à l'utilisateur
@@ -158,7 +158,7 @@ router.post('/associateFlights/:userId', async (req, res) => {
 // Route pour récupérer les infos de tous les vols de l'utilisateur
 router.get('/userFlightInfo/:userId', async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.query.userId;
 
     // Recherche de l'utilisateu r dans la base de données avec tous les vols associés
     const user = await User.findById(userId).populate('flights'); 
@@ -178,6 +178,7 @@ router.get('/userFlightInfo/:userId', async (req, res) => {
     return res.status(500).json({ error: 'Erreur serveur lors de la récupération des infos des vols de l\'utilisateur' });
   }
 });
+
 
 
 module.exports = router;
