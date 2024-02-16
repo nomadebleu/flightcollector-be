@@ -1,13 +1,14 @@
-require('dotenv').config();
-require('../models/connection');
-var express = require('express');
+require("dotenv").config();
+require("../models/connection");
+var express = require("express");
 var router = express.Router();
-const Flight = require('../models/flights');
+const Flight = require("../models/flights");
 
 const apiKeyMovies = process.env.API_KEY_MOVIES;
+const apiKeyFlight = process.env.API_KEY_FLIGHTS;
 
 //POST pour enregistrer un flight
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const {
       numeroReservation,
@@ -44,7 +45,7 @@ router.post('/', async (req, res) => {
     });
 
     const response = await newFlight.save();
-    res.json({ result: 'New flight in db' });
+    res.json({ result: "New flight in db" });
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
     res
@@ -54,12 +55,12 @@ router.post('/', async (req, res) => {
 });
 
 //Pour avoir des films
-router.get('/movies', (req,res) => {
-    
+router.get("/movies", (req, res) => {
   fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKeyMovies}`)
       .then(response => response.json())
       .then(data => {
-          res.json({movies:data.results});
+        console.log('data',data.results.length)
+          res.json({movies:data.results.sort(() => Math.random() - 0.5)});
       })
 })
 
