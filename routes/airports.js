@@ -30,4 +30,29 @@ router.post('/newAirport', async (req, res) => {
   }
 });
   
+
+router.get('/getFlagByArrivalPlace', async (req, res) => {
+  try {
+    const { arrivalPlace } = req.body;
+    
+    // Recherche de l'aéroport en fonction du lieu d'arrivée de l'utilisateur
+    const airport = await Airport.findOne({ country: arrivalPlace });
+
+    if (!airport) {
+      return res.status(404).json({ error: "Aéroport non trouvé pour le lieu d'arrivée spécifié." });
+    }
+
+    // Extrait du drapeau de l'aéroport trouvé
+    const flag = airport.flag;
+
+    // Renvoie le drapeau à l'utilisateur
+    res.status(200).json({ flag });
+  } catch (error) {
+    console.error('Erreur lors de la récupération du drapeau:', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+});
+
+
+
   module.exports = router;
