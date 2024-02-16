@@ -31,7 +31,7 @@ router.post('/newAirport', async (req, res) => {
 });
   
 
-router.get('/getFlagByArrivalPlace', async (req, res) => {
+router.post('/getFlagByArrivalPlace', async (req, res) => {
   try {
     const { arrivalPlace } = req.body;
     
