@@ -2,6 +2,7 @@ require('../models/connection');
 var express = require('express');
 var router = express.Router();
 const Plane = require('../models/planes');
+const User = require('../models/users')
 
 //POST pour enregistrer un plane
 router.post('/', async (req, res) => {
@@ -64,6 +65,29 @@ router.get('/favoris', async (req, res) => {
   }
 });
 
+//Ajoute un avion en favoris: 
+router.post('/addFavoris/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { favorisAvionsIds } = req.body;
+
+  try {
+    // Trouver l'utilisateur
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Ajouter les avions favoris à l'utilisateur
+    user.isFavorite = favorisAvionsIds;
+    await user.save();
+
+    res.status(200).json({ message: "Avions favoris ajoutés à l'utilisateur avec succès" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de l'ajout des avions favoris à l'utilisateur" });
+  }
+});
 
 
 

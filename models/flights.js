@@ -11,7 +11,6 @@ const serviceSchema = mongoose.Schema({
 const flightSchema = mongoose.Schema({
   numeroReservation: String,
   planes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'planes' }],
-  badge: { type: mongoose.Schema.Types.ObjectId, ref: 'badges' },//une seul badge attribué ou aucun
   departure: Date,
   arrival: Date,
   airport : String,
