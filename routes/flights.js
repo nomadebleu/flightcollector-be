@@ -7,7 +7,7 @@ const Flight = require("../models/flights");
 const apiKeyMovies = process.env.API_KEY_MOVIES;
 const apiKeyFlight = process.env.API_KEY_FLIGHTS;
 
-//POST pour enregistrer un flight
+//POST pour enregistrer un flight OK
 router.post("/", async (req, res) => {
   try {
     const {
@@ -21,6 +21,7 @@ router.post("/", async (req, res) => {
       departurePlace,
       iataArrival,
       iataDep,
+      badge,
     } = req.body;
 
     //Déstructure le Sous Document
@@ -42,6 +43,7 @@ router.post("/", async (req, res) => {
         movies,
         meals,
       },
+      badge
     });
 
     const response = await newFlight.save();
