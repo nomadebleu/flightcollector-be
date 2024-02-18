@@ -104,15 +104,15 @@ router.post('/unlockbadge/Golden/:id', async (req, res) => {
       await user.save();
 
       // Débloquer le badge pour l'utilisateur
-      return res.send(
+      return res.json( {result : 
         'Félicitations ! Vous avez débloqué le badge GOLDEN et gagné 1000 points.'
-      );
+      });
     } else {
       return res
         .status(403)
-        .send(
+        .json( {result :
           "Vous n'avez pas suffisament de points pour débloquer le badge GOLDEN"
-        );
+    });
     }
   } catch (err) {
     console.error(err);
