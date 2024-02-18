@@ -52,9 +52,9 @@ router.post('/unlockbadge/discovery/:userId', async (req, res) => {
     }
 
     // Vérifier si l'utilisateur a déjà le badge "Discovery"
-    if (!user.badges.includes('ID_DU_BADGE_DISCOVERY')) {
+    if (!user.badges.includes('65c25ff23511d200c07c0a95')) {
       // Ajouter le badge "Discovery" à la liste des badges de l'utilisateur
-      user.badges.push('ID_DU_BADGE_DISCOVERY');
+      user.badges.push('65c25ff23511d200c07c0a95');
       // Mettre à jour la base de données
       await user.save();
 
