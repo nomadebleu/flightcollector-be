@@ -40,6 +40,7 @@ router.get('/:id', async (req, res) => {
 // OBTENTION BADGES PAR CONDITIONS :
 
 // Route Discovery
+// Route Discovery
 router.post('/unlockbadge/discovery/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -48,27 +49,34 @@ router.post('/unlockbadge/discovery/:userId', async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).json({ error: 'User not found' });
     }
 
     // Vérifier si l'utilisateur a déjà le badge "Discovery"
     if (!user.badges.includes('65c25ff23511d200c07c0a95')) {
       // Ajouter le badge "Discovery" à la liste des badges de l'utilisateur
       user.badges.push('65c25ff23511d200c07c0a95');
+
+      // Vérifier si l'utilisateur a des vols, sinon, ajouter le badge "Discovery" à sa collection
+      if (!user.flights || user.flights.length === 0) {
+        user.badges.push('65c25ff23511d200c07c0a95');
+      }
+
       // Mettre à jour la base de données
       await user.save();
 
-      // Envoyer une réponse indiquant que le badge a été débloqué avec succès
-      return res.status(200).send('Discovery badge unlocked successfully');
+      // Envoyer une réponse JSON indiquant que le badge a été débloqué avec succès
+      return res.status(200).json({ message: 'Discovery badge unlocked successfully' });
     } else {
       // L'utilisateur a déjà le badge "Discovery"
-      return res.status(400).send('Discovery badge already unlocked for this user');
+      return res.status(400).json({ error: 'Discovery badge already unlocked for this user' });
     }
   } catch (error) {
     console.error('Error unlocking Discovery badge:', error);
-    return res.status(500).send('Internal Server Error');
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 
 //Condition pour le Badge GOLDEN :
