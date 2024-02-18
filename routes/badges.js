@@ -48,14 +48,14 @@ router.post('/unlockbadge/Golden/:id', async (req, res) => {
     }
 
     // Obtenez le nombre total de points de l'utilisateur
-    let userTotalPoints = user.pointsTotal;
+    let userTotalPoints = user.totalPoints;
 
     const goldenBadgePoints = 10000;
 
     // Logique conditionnelle pour débloquer le badge Golden
     if (userTotalPoints >= goldenBadgePoints) {
       // Ajouter 1000 points à l'utilisateur
-      user.pointsTotal += 1000;
+      user.totalPoints += 1000;
 
       // Vérifier d'abord si l'utilisateur n'a pas déjà le badge Golden
       if (!user.badges.includes('65c25c6b3eac6b8b352dafcf')) {
@@ -74,7 +74,7 @@ router.post('/unlockbadge/Golden/:id', async (req, res) => {
       return res
         .status(403)
         .send(
-          "Vous n'avez pas visité suffisamment de pays froids pour débloquer le badge GOLDEN"
+          "Vous n'avez pas suffisament de points pour débloquer le badge GOLDEN"
         );
     }
   } catch (err) {
@@ -154,6 +154,8 @@ router.post('/unlockbadge/Ice/:userId', async (req, res) => {
     return res.status(500).send('Erreur interne du serveur');
   }
 });
+
+
 
 //Condition pour le badge  FIRE :
 
