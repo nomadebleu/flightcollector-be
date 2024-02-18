@@ -158,7 +158,8 @@ function hasVisitedEnoughColdestCountries(user) {
   return visitedColdestCountriesCount >= 4;
 }
 
-// Route pour débloquer le badge ICE
+
+//Route pour débloquer le badge Ice:
 router.post('/unlockbadge/Ice/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -166,7 +167,7 @@ router.post('/unlockbadge/Ice/:userId', async (req, res) => {
     // Récupérer l'utilisateur depuis la base de données en utilisant son ID
     const user = await User.findById(userId).populate('flights');
     if (!user) {
-      return res.status(404).send('Utilisateur non trouvé');
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
     // Vérifier si l'utilisateur a visité suffisamment de pays froids pour débloquer le badge ICE
@@ -182,19 +183,23 @@ router.post('/unlockbadge/Ice/:userId', async (req, res) => {
       await user.save();
 
       // Débloquer le badge ICE pour l'utilisateur
-      return res.send(
-        'Félicitations ! Vous avez débloqué le badge ICE et gagné 900 points.'
-      );
+      return res.json({
+        result: 'Félicitations ! Vous avez débloqué le badge ICE et gagné 900 points.',
+        badge: {
+          picture: 'https://emojicdn.elk.sh/🥶',
+          name: 'Ice',
+          description: 'You explore the coldest area on Earth, a majestic frozen landscape where only the hardiest creatures survive.',
+          points: 900 // Nombre de points gagnés avec le badge
+        }
+      });
     } else {
-      return res
-        .status(403)
-        .send(
-          "Vous n'avez pas visité suffisamment de pays froids pour débloquer le badge ICE."
-        );
+      return res.status(403).json({
+        error: "Vous n'avez pas visité suffisamment de pays froids pour débloquer le badge ICE."
+      });
     }
   } catch (err) {
     console.error(err);
-    return res.status(500).send('Erreur interne du serveur');
+    return res.status(500).json({ error: 'Erreur interne du serveur' });
   }
 });
 
