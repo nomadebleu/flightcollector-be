@@ -406,4 +406,73 @@ router.post('/unlockbadge/FiveContinents/:userId', async (req, res) => {
   }
 });
 
+// Route pour débloquer TOUT les badges :
+
+// Route POST pour débloquer les badges en fonction des points et des critères spécifiques
+router.post('/unlockBadges', async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    // Recherchez l'utilisateur dans la base de données par son ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    
+    const totalPoints = user.totalPoints;
+    // Débloquez le badge Golden si l'utilisateur a 1000 points
+    if (totalPoints >= 10000) {
+      const goldenBadge = await Badge.findOne({ name: 'Golden' });
+      if (goldenBadge && !user.badges.find(badge => badge.name === 'Golden')) {
+        user.badges.push(goldenBadge);
+      }
+    }
+
+    // Débloquez le badge Ice si l'utilisateur a visité au moins 4 pays Froid
+    const hasEnoughColdCountries = hasVisitedEnoughColdestCountries(userId);
+    if (hasEnoughColdCountries) {
+      const iceBadge = await Badge.findOne({ name: 'Ice' });
+      if (iceBadge && !user.badges.find(badge => badge.name === 'Ice')) {
+        user.badges.push(iceBadge);
+      }
+    }
+ // Débloquez le badge Ice si l'utilisateur a visité au moins 4 pays chauds
+    const hasEnougHottestCountries = hasVisitedEnoughHottestCountries(userId);
+    if (hasEnougHottestCountries){
+      const fireBadge = await Badge.findOne({ name: 'Fire' });
+      if (fireBadge && !user.badges.find(badge => badge.name === 'Fire')) {
+        user.badges.push(fireBadge);
+      }
+    }
+ // Débloquez le badge Ice si l'utilisateur a visité au moins 4 pays amicals
+    const hasEnougFriendlyCountries = hasVisitedEnoughFriendliestCountries(userId);
+    if (hasEnougFriendlyCountries){
+      const friendlyCountry = await Badge.findOne({ name : 'Ray'})
+      if (friendlyCountry && !user.badges.find(badge => badge.name === 'Ray')) {
+        user.badges.push(friendlyCountry);
+    }
+  }
+
+   // Débloquez le badge Ice si l'utilisateur a visité au moins 5 continents
+  const hasEnougContinents = hasVisitedEnoughContinents(userId);
+  if (hasEnougContinents){
+    const continents = await Badge.findOne({name : 'Five Select'})
+    if (continents && !user.badge.find(badge => badge.name === 'Five Select')){
+      user.badges.push(continents);
+    }
+  }
+
+
+    // Enregistrez les modifications de l'utilisateur dans la base de données
+    await user.save();
+
+    res.json({ message: 'Badges débloqués avec succès', user });
+  } catch (error) {
+    console.error("Une erreur s'est produite :", error);
+    res.status(500).json({ error: 'Erreur lors du déblocage des badges' });
+  }
+});
+
+
 module.exports = router;
