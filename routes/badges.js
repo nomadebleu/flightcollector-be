@@ -49,7 +49,7 @@ router.get('/badgesUser/:userId', async (req, res) => {
     }
 
     // Si l'utilisateur est trouvé, récupérez les badges associés à cet utilisateur
-    const userBadges = user.badges; // Supposons que user.badges contienne les références des badges de l'utilisateur
+    const userBadges = user.badges.picture; 
 
     // Renvoyez les badges associés à l'utilisateur en réponse
     res.json({ result: 'Badges de l\'utilisateur récupérés avec succès', data: userBadges });
