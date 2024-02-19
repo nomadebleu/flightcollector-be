@@ -4,7 +4,7 @@ var router = express.Router();
 const Badge = require('../models/badges');
 const User = require('../models/users');
 
-//GET pour récupérer tous les badges
+//GET pour récupérer tous les badges par un id 
 router.get('/', async (req, res) => {
   try {
     const data = await Badge.find();
@@ -34,6 +34,31 @@ router.get('/:id', async (req, res) => {
 });
 
 
+
+// Route pour récupérer les badges d'un utilisateur par son ID
+router.get('/badgesUser/:userId', async (req, res) => {
+  const userId = req.params.userId; // Récupérez l'ID de l'utilisateur à partir de la requête
+
+  try {
+    // Recherchez l'utilisateur dans la base de données par son ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      // Si aucun utilisateur n'est trouvé avec cet ID, renvoyez une réponse 404 (Non trouvé)
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    // Si l'utilisateur est trouvé, récupérez les badges associés à cet utilisateur
+    const userBadges = user.badges; // Supposons que user.badges contienne les références des badges de l'utilisateur
+
+    // Renvoyez les badges associés à l'utilisateur en réponse
+    res.json({ result: 'Badges de l\'utilisateur récupérés avec succès', data: userBadges });
+  } catch (error) {
+    // En cas d'erreur lors de la recherche de l'utilisateur ou des badges, renvoyez une réponse avec le code d'erreur 500 (Erreur interne du serveur)
+    console.error("Une erreur s'est produite :", error);
+    res.status(500).json({ error: "Erreur lors de la récupération des badges de l'utilisateur" });
+  }
+});
 
 
 
