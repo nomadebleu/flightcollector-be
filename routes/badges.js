@@ -48,7 +48,7 @@ router.post('/unlockbadge/discovery/:userId', async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).json( {res : 'User not found'});
     }
 
     // Vérifier si l'utilisateur a déjà le badge "Discovery"
@@ -59,14 +59,14 @@ router.post('/unlockbadge/discovery/:userId', async (req, res) => {
       await user.save();
 
       // Envoyer une réponse indiquant que le badge a été débloqué avec succès
-      return res.status(200).send('Discovery badge unlocked successfully');
+      return res.status(200).json( {res : 'Discovery badge unlocked successfully'});
     } else {
       // L'utilisateur a déjà le badge "Discovery"
-      return res.status(400).send('Discovery badge already unlocked for this user');
+      return res.status(400).json( {res : 'Discovery badge already unlocked for this user'});
     }
   } catch (error) {
     console.error('Error unlocking Discovery badge:', error);
-    return res.status(500).send('Internal Server Error');
+    return res.status(500).json( {res : 'Internal Server Error'});
   }
 });
 
