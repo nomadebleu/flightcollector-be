@@ -114,10 +114,12 @@ router.post('/unlockbadge/Golden/:id', async (req, res) => {
       // Débloquer le badge pour l'utilisateur
       return res.json( {result : 
         'Félicitations ! Vous avez débloqué le badge GOLDEN et gagné 1000 points.', 
+        badge: {
           picture: 'https://emojicdn.elk.sh/🤩',
           name: 'Golden',
           description: 'You have reached the Golden level. You are an outstanding traveler.',
           points: 1000 // Nombre de points gagnés avec le badge
+        }
       });
     } else {
       return res
