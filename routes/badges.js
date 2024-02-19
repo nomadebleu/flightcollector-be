@@ -49,22 +49,25 @@ router.get('/badgesUser/:userId', async (req, res) => {
     }
 
     // Si l'utilisateur est trouvé, récupérez les badges associés à cet utilisateur
-    const userBadges = user.badges.picture; 
+    const userBadges = user.badges; 
 
-    // Renvoyez les badges associés à l'utilisateur en réponse
-    res.json({ result: 'Badges de l\'utilisateur récupérés avec succès', data: userBadges });
+    // Récupérez toutes les images des badges associés à l'utilisateur
+    const badgesImages = userBadges.map(badge => badge.picture);
+
+    // Renvoyez les images des badges associés à l'utilisateur en réponse
+    res.json({ result: 'Images des badges de l\'utilisateur récupérées avec succès', data: badgesImages });
   } catch (error) {
     // En cas d'erreur lors de la recherche de l'utilisateur ou des badges, renvoyez une réponse avec le code d'erreur 500 (Erreur interne du serveur)
     console.error("Une erreur s'est produite :", error);
-    res.status(500).json({ error: "Erreur lors de la récupération des badges de l'utilisateur" });
+    res.status(500).json({ error: "Erreur lors de la récupération des images des badges de l'utilisateur" });
   }
 });
 
 
 
+
 // OBTENTION BADGES PAR CONDITIONS :
 
-// Route Discovery
 // Route Discovery
 router.post('/unlockbadge/discovery/:userId', async (req, res) => {
   try {
