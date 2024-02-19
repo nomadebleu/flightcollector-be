@@ -36,6 +36,31 @@ router.put("/password", async (req, res) => {
   }
 });
 
+
+
+// Route GET pour récupérer les points de l'utilisateur
+router.get('/totalPoints/:userId/', async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    // Recherchez l'utilisateur dans la base de données par son ID
+    const user = await User.findById(userId);
+
+    // Vérifiez si l'utilisateur existe
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+    }
+
+    // Renvoyez les points de l'utilisateur
+    return res.status(200).json({ success: true, totalPoints: user.totalPoints });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des points de l\'utilisateur:', error.message);
+    return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des points de l\'utilisateur' });
+  }
+});
+
+
+
 //Ajout des points du badge au totalPoints du user OK
 router.put("/addPoints", async (req, res) => {
   try {
