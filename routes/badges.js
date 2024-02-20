@@ -3,7 +3,6 @@ var express = require('express');
 var router = express.Router();
 const Badge = require('../models/badges');
 const User = require('../models/users');
-const Flight = require('../models/flights')
 
 
 //GET pour récupérer tous les badges par un id 
@@ -39,6 +38,13 @@ router.get('/:id', async (req, res) => {
 
 
 // OBTENTION BADGES PAR CONDITIONS :
+
+
+// Fonction pour vérifier si l'utilisateur a des vols
+async function hasUserFlights(user) {
+  return user.flights.length > 0;
+}
+
 
 //Condition pour le badge Ice :
 
@@ -104,7 +110,7 @@ async function hasVisitedEnoughHottestCountries(user) {
   try {
     // Récupérer l'utilisateur avec ses vols depuis la base de données en utilisant populate
     const userWithFlights = await User.findById(user._id).populate('flights');
-    
+
     // Assurez-vous que l'utilisateur a bien ses vols
     if (!userWithFlights.flights) {
       return false;
@@ -112,8 +118,8 @@ async function hasVisitedEnoughHottestCountries(user) {
 
     // Mapper les vols pour obtenir une liste des destinations d'arrivée
     const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.arrivalPlace);
-   
-    
+
+
 
     // Compter le nombre de destinations d'arrivée visitées qui font partie des pays les plus chauds
     let visitedHottestCountriesCount = 0;
@@ -122,7 +128,7 @@ async function hasVisitedEnoughHottestCountries(user) {
         visitedHottestCountriesCount++;
       }
     }
-    
+
     // Vérifier si l'utilisateur a visité au moins 4 des pays les plus chauds
     return visitedHottestCountriesCount >= 4;
   } catch (error) {
@@ -150,7 +156,7 @@ async function hasVisitedEnoughFriendliestCountries(user) {
   try {
     // Récupérer l'utilisateur avec ses vols depuis la base de données en utilisant populate
     const userWithFlights = await User.findById(user._id).populate('flights');
-    
+
     // Assurez-vous que l'utilisateur a bien ses vols
     if (!userWithFlights.flights) {
       return false;
@@ -158,7 +164,7 @@ async function hasVisitedEnoughFriendliestCountries(user) {
 
     // Mapper les vols pour obtenir une liste des destinations d'arrivée
     const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.arrivalPlace);
-    
+
     // Compter le nombre de destinations d'arrivée visitées qui font partie des pays les plus friendly
     let visitedFriendliestCountriesCount = 0;
     for (let i = 0; i < userArrivalPlaces.length; i++) {
@@ -192,7 +198,7 @@ async function hasVisitedEnoughContinents(user) {
   try {
     // Récupérer l'utilisateur avec ses vols depuis la base de données en utilisant populate
     const userWithFlights = await User.findById(user._id).populate('flights');
-    
+
     // Assurez-vous que l'utilisateur a bien ses vols
     if (!userWithFlights.flights) {
       return false;
@@ -200,7 +206,7 @@ async function hasVisitedEnoughContinents(user) {
 
     // Mapper les vols pour obtenir une liste des destinations d'arrivée
     const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.arrivalPlace);
-    
+
     // Compter le nombre de continents visités
     let visitedContinents = 0;
     for (let i = 0; i < userArrivalPlaces.length; i++) {
@@ -231,10 +237,21 @@ router.post('/unlockBadges', async (req, res) => {
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
+    //Réponse de la route 
     const unlockedBadges = [];
-    const totalPoints = user.totalPoints;
+
+    // Vérifie si l'utilisateur a des vols et débloquez le badge "Discovery" si nécessaire
+    const discoverBadge = await Badge.findOne({ name: 'Discover' });
+    if (discoverBadge && !await hasUserFlights(user)) {
+      if (!user.badges.some(badge => badge.equals(discoverBadge._id))) {
+        user.badges.push(discoverBadge);
+        unlockedBadges.push(discoverBadge)
+      }
+    }
+
 
     // Débloquez le badge Golden si l'utilisateur a 1000 points
+    const totalPoints = user.totalPoints;
     if (totalPoints >= 10000) {
       const goldenBadge = await Badge.findOne({ name: 'Golden' });
       if (goldenBadge && !user.badges.some(badge => badge.equals(goldenBadge._id))) {
