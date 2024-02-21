@@ -9,7 +9,6 @@ const serviceSchema = mongoose.Schema({
 
 //Schéma de Flights
 const flightSchema = mongoose.Schema({
-  numeroReservation: String,
   planes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'planes' }],
   departure: Date,
   arrival: Date,

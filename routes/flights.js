@@ -5,13 +5,11 @@ var router = express.Router();
 const Flight = require("../models/flights");
 
 const apiKeyMovies = process.env.API_KEY_MOVIES;
-const apiKeyFlight = process.env.API_KEY_FLIGHTS;
 
 //POST pour enregistrer un flight OK
 router.post("/", async (req, res) => {
   try {
     const {
-      numeroReservation,
       planes,
       departure,
       arrival,
@@ -28,7 +26,6 @@ router.post("/", async (req, res) => {
     const { nbrePlaces, movies, meals } = services;
 
     const newFlight = new Flight({
-      numeroReservation,
       planes,
       departure,
       arrival,
@@ -63,7 +60,6 @@ router.get("/movies", (req, res) => {
           res.json({movies:data.results.sort(() => Math.random() - 0.5)});
       })
 })
-
 
 
 module.exports = router;
