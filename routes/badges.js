@@ -240,9 +240,9 @@ router.post('/unlockBadges', async (req, res) => {
     //Réponse de la route 
     const unlockedBadges = [];
 
-    // Vérifie si l'utilisateur a des vols et débloquez le badge "Discovery" si nécessaire
+    //Vérifie si l'utilisateur a des vols et débloquez le badge "Discovery" si nécessaire
     const discoverBadge = await Badge.findOne({ name: 'Discover' });
-    if (discoverBadge && !await hasUserFlights(user)) {
+    if (discoverBadge && await hasUserFlights(user)) {
       if (!user.badges.some(badge => badge.equals(discoverBadge._id))) {
         user.badges.push(discoverBadge);
         unlockedBadges.push(discoverBadge)
