@@ -50,14 +50,11 @@ async function hasUserFlights(user) {
 
 // Liste des pays les plus froids du monde
 const coldestCountries = [
-  'Russia',
-  'Canada',
-  'United States (Alaska)',
-  'Greenland',
-  'Iceland',
-  'Norway',
-  'Finland',
-  'Sweden',
+  'Sheremetyevo International Airport',
+  'Toronto Pearson International Airport',
+  'Los Angeles International Airport',
+  'Keflavik International Airport',
+  'Helsinki-Vantaa Airport',
 ];
 
 // Fonction pour vérifier si l'utilisateur a visité les pays les plus froids du monde en fonction des destinations d'arrivée
@@ -72,7 +69,7 @@ async function hasVisitedEnoughColdestCountries(user) {
     }
 
     // Mapper les vols pour obtenir une liste des destinations d'arrivée
-    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.arrivalPlace);
+    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.airportNameDest);
 
     // Compter le nombre de destinations d'arrivée visitées qui font partie des pays les plus froids
     let visitedColdestCountriesCount = 0;
@@ -98,14 +95,10 @@ async function hasVisitedEnoughColdestCountries(user) {
 
 async function hasVisitedEnoughHottestCountries(user) {
   const hottestCountries = [
-    'Iran',
-    'Kuwait',
-    'Iraq',
+    'Kuwait International Airport',
     'United Arab Emirates',
-    'Oman',
-    'Pakistan',
-    'Saudi Arabia',
-    'Qatar',
+    'King Khalid International Airport',
+    'Hamad International Airport',
   ];
   try {
     // Récupérer l'utilisateur avec ses vols depuis la base de données en utilisant populate
@@ -117,7 +110,7 @@ async function hasVisitedEnoughHottestCountries(user) {
     }
 
     // Mapper les vols pour obtenir une liste des destinations d'arrivée
-    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.arrivalPlace);
+    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.airportNameDest);
 
 
 
@@ -144,13 +137,12 @@ async function hasVisitedEnoughHottestCountries(user) {
 async function hasVisitedEnoughFriendliestCountries(user) {
   const friendliestCountries = [
     'New Zealand',
-    'Denmark',
-    'Portugal',
+    'Copenhagen Airport',
+    'Lisbon Portela Airport',
     'Switzerland',
-    'Canada',
-    'Austria',
-    'Japan',
-    'Australia',
+    'Toronto Pearson International Airport',
+    'Narita International Airport',
+    'Sydney Kingsford Smith Airport',
   ];
 
   try {
@@ -163,7 +155,7 @@ async function hasVisitedEnoughFriendliestCountries(user) {
     }
 
     // Mapper les vols pour obtenir une liste des destinations d'arrivée
-    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.arrivalPlace);
+    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.airportNameDest);
 
     // Compter le nombre de destinations d'arrivée visitées qui font partie des pays les plus friendly
     let visitedFriendliestCountriesCount = 0;
@@ -182,7 +174,7 @@ async function hasVisitedEnoughFriendliestCountries(user) {
 }
 
 
-//Condition pour  le badge Five select :
+//Condition pour  le badge Five select : A SUPPRIMER ?
 
 async function hasVisitedEnoughContinents(user) {
   const continents = [
@@ -205,7 +197,7 @@ async function hasVisitedEnoughContinents(user) {
     }
 
     // Mapper les vols pour obtenir une liste des destinations d'arrivée
-    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.arrivalPlace);
+    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.airportNameDest);
 
     // Compter le nombre de continents visités
     let visitedContinents = 0;
