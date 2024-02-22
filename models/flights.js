@@ -7,7 +7,7 @@ const flightSchema = mongoose.Schema({
 
   reservationNumber:String,
 
-  planes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'planes' }],
+  planes: { type: mongoose.Schema.Types.ObjectId, ref: 'planes' },
 
   departure: Date,
   departureScheduled: Date,

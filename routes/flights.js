@@ -61,7 +61,7 @@ router.get("/movies", (req, res) => {
       })
 })
 
-//Pour récupérer tous les flights OK
+//Pour récupérer tous les flights 
 router.get('/allFlights',async(req,res) => {
   try {
     const flights = await Flight.find();
@@ -73,6 +73,29 @@ router.get('/allFlights',async(req,res) => {
   }
 
 })
+//Pour récupérer un vol avec le numéro de réservation OK
+router.get('/:reservationNumber', async (req, res) => {
+  try {
+    const reservationNumber = req.params.reservationNumber;
+    const flight = await Flight
+                            .findOne({ reservationNumber })
+                            .populate('planes');
+
+    if (!flight) {
+      return res.status(404).json({ error: 'Aucun vol trouvé avec ce numéro de réservation.' });
+    }
+
+    res.json({ result: true, data: flight });
+  } catch (error) {
+    console.error('Erreur lors de la récupération du vol:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération du vol.' });
+  }
+});
+
+
+
+
+
 
 
 module.exports = router;
