@@ -10,35 +10,37 @@ const apiKeyMovies = process.env.API_KEY_MOVIES;
 router.post("/", async (req, res) => {
   try {
     const {
+      reservationNumber,
       planes,
       departure,
+      departureScheduled,
+      departureEstimated,
+      departureActual,
       arrival,
-      services,
-      airport,
-      arrivalPlace,
-      departurePlace,
+      arrivalScheduled,
+      arrivalEstimated,
+      airportNameDest,
       iataArrival,
       iataDep,
+      nbrePlaces,
+      meal,
     } = req.body;
 
-    //Déstructure le Sous Document
-
-    const { nbrePlaces, movies, meals } = services;
-
     const newFlight = new Flight({
+      reservationNumber,
       planes,
       departure,
+      departureScheduled,
+      departureEstimated,
+      departureActual,
       arrival,
-      airport,
-      arrivalPlace,
-      departurePlace,
+      arrivalScheduled,
+      arrivalEstimated,
+      airportNameDest,
       iataArrival,
       iataDep,
-      services: {
-        nbrePlaces,
-        movies,
-        meals,
-      },
+      nbrePlaces,
+      meal,
     });
 
     const response = await newFlight.save();
@@ -54,25 +56,25 @@ router.post("/", async (req, res) => {
 //Pour avoir des films OK
 router.get("/movies", (req, res) => {
   fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKeyMovies}`)
-      .then(response => response.json())
-      .then(data => {
-        console.log('data',data.results.length)
-          res.json({movies:data.results.sort(() => Math.random() - 0.5)});
-      })
-})
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("data", data.results.length);
+      res.json({ movies: data.results.sort(() => Math.random() - 0.5) });
+    });
+});
 
 //Pour récupérer tous les flights OK
-router.get('/allFlights',async(req,res) => {
+router.get("/allFlights", async (req, res) => {
   try {
     const flights = await Flight.find();
-    res.json({result:true, data:flights});
+    res.json({ result: true, data: flights });
   } catch (error) {
     // En cas d'erreur, réponse d'erreur avec le code d'erreur approprié
-    console.error('Erreur lors de la récupération des flights:', error);
-    res.status(500).json({ error: 'Erreur lors de la récupération des flights'});
+    console.error("Erreur lors de la récupération des flights:", error);
+    res
+      .status(500)
+      .json({ error: "Erreur lors de la récupération des flights" });
   }
-
-})
-
+});
 
 module.exports = router;
