@@ -11,37 +11,37 @@ const apiKeyFlight = process.env.API_KEY_FLIGHTS;
 router.post("/", async (req, res) => {
   try {
     const {
-      numeroReservation,
+      reservationNumber,
       planes,
       departure,
+      departureScheduled,
+      departureEstimated,
+      departureActual,
       arrival,
-      services,
-      airport,
-      arrivalPlace,
-      departurePlace,
+      arrivalScheduled,
+      arrivalEstimated,
+      airportNameDest,
       iataArrival,
       iataDep,
+      nbrePlaces,
+      meal,
     } = req.body;
 
-    //Déstructure le Sous Document
-
-    const { nbrePlaces, movies, meals } = services;
-
     const newFlight = new Flight({
-      numeroReservation,
+      reservationNumber,
       planes,
       departure,
+      departureScheduled,
+      departureEstimated,
+      departureActual,
       arrival,
-      airport,
-      arrivalPlace,
-      departurePlace,
+      arrivalScheduled,
+      arrivalEstimated,
+      airportNameDest,
       iataArrival,
       iataDep,
-      services: {
-        nbrePlaces,
-        movies,
-        meals,
-      },
+      nbrePlaces,
+      meal,
     });
 
     const response = await newFlight.save();
@@ -57,13 +57,11 @@ router.post("/", async (req, res) => {
 //Pour avoir des films
 router.get("/movies", (req, res) => {
   fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKeyMovies}`)
-      .then(response => response.json())
-      .then(data => {
-        console.log('data',data.results.length)
-          res.json({movies:data.results.sort(() => Math.random() - 0.5)});
-      })
-})
-
-
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("data", data.results.length);
+      res.json({ movies: data.results.sort(() => Math.random() - 0.5) });
+    });
+});
 
 module.exports = router;
