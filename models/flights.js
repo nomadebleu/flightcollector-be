@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 
-const mongoose = require("mongoose");
-
 //Schéma de Flights
 const flightSchema = mongoose.Schema({
   reservationNumber: String,
