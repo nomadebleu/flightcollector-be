@@ -1,37 +1,17 @@
 const mongoose = require("mongoose");
 
-const mongoose = require("mongoose");
-
 //Schéma de Flights
 const flightSchema = mongoose.Schema({
   reservationNumber: String,
 
-  planes: [{ type: mongoose.Schema.Types.ObjectId, ref: "planes" }],
-
-  reservationNumber: String,
-
-  planes: [{ type: mongoose.Schema.Types.ObjectId, ref: "planes" }],
+  planes: { type: mongoose.Schema.Types.ObjectId, ref: "planes" },
 
   departure: Date,
   departureScheduled: Date,
   departureEstimated: Date,
   departureActual: Date,
 
-  departureScheduled: Date,
-  departureEstimated: Date,
-  departureActual: Date,
-
   arrival: Date,
-  arrivalScheduled: Date,
-  arrivalEstimated: Date,
-
-  airportNameDest: String,
-
-  iataArrival: String,
-  iataDep: String,
-
-  nbrePlaces: Number,
-  meals: String,
   arrivalScheduled: Date,
   arrivalEstimated: Date,
 
