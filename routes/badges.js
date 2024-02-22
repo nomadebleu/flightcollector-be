@@ -302,8 +302,12 @@ router.post('/unlockBadges', async (req, res) => {
 
     // Enregistrez les modifications de l'utilisateur dans la base de données
     await user.save();
-
+    if (unlockedBadges.length >0){
     res.json({ message: 'Badges débloqués avec succès', unlockedBadges });
+    } else {
+      res.json({ message: 'Aucun badge débloqué' });
+    }
+
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
     res.status(500).json({ error: 'Erreur lors du déblocage des badges' });
