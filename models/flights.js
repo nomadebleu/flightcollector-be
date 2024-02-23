@@ -4,8 +4,6 @@ const mongoose = require("mongoose");
 const flightSchema = mongoose.Schema({
   reservationNumber: String,
 
-  reservationNumber:String,
-
   planes: { type: mongoose.Schema.Types.ObjectId, ref: 'planes' },
 
   departure: Date,
@@ -17,10 +15,8 @@ const flightSchema = mongoose.Schema({
   arrivalScheduled: Date,
   arrivalEstimated: Date,
 
-  airportNameDest: String,
-
-  iataArrival: String,
-  iataDep: String,
+  airportDep: { type: mongoose.Schema.Types.ObjectId, ref: 'airports' },
+  airportArr:{ type: mongoose.Schema.Types.ObjectId, ref: 'airports' },
 
   nbrePlaces: Number,
   meals: String,

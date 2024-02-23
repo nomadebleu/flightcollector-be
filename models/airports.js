@@ -5,7 +5,10 @@ const airportSchema = mongoose.Schema({
   country : String,
   city : String,
   name : String,
-  flag : String
+  flag : String,
+  iataCode:String,
+  latitude:Number,
+  longitude:Number,
 });
 
 //Model de Flag

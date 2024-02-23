@@ -9,7 +9,7 @@ var usersRouter = require('./routes/users');
 const badgesRouter = require('./routes/badges');
 const flightsRouter = require('./routes/flights');
 const planesRouter = require('./routes/planes');
-const airportRouter = require('./routes/airports')
+const airportsRouter = require('./routes/airports')
 
 
 var app = express();
@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/airport', airportRouter);
+app.use('/airports', airportsRouter);
 app.use('/users', usersRouter);
 app.use('/badges', badgesRouter);
 app.use('/flights', flightsRouter);
