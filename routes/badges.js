@@ -57,35 +57,46 @@ const coldestCountries = [
   'Helsinki-Vantaa Airport',
 ];
 
-// Fonction pour vérifier si l'utilisateur a visité les pays les plus froids du monde en fonction des destinations d'arrivée
 async function hasVisitedEnoughColdestCountries(user) {
   try {
-    // Récupérer l'utilisateur avec ses vols depuis la base de données en utilisant populate
-    const userWithFlights = await User.findById(user._id).populate('flights');
+    const userWithFlights = await User.findById(user._id)
+      .populate({
+        path: 'flights',
+        populate: {
+          path: 'airportArr'
+        }
+      });
 
-    // Assurez-vous que l'utilisateur a bien ses vols
-    if (!userWithFlights.flights) {
+    if (!userWithFlights || !userWithFlights.flights) {
       return false;
     }
 
-    // Mapper les vols pour obtenir une liste des destinations d'arrivée
-    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.airportNameDest);
+    const userFlights = userWithFlights.flights;
+    const arrivalCountriesCount = {};
 
-    // Compter le nombre de destinations d'arrivée visitées qui font partie des pays les plus froids
-    let visitedColdestCountriesCount = 0;
-    for (let i = 0; i < userArrivalPlaces.length; i++) {
-      if (coldestCountries.includes(userArrivalPlaces[i])) {
-        visitedColdestCountriesCount++;
+    // Compter le nombre de fois que chaque pays d'arrivée apparaît
+    userFlights.forEach((flight) => {
+      const airportArrCountry = flight.airportArr.name;
+      if (coldestCountries.includes(airportArrCountry)) {
+        if (arrivalCountriesCount.hasOwnProperty(airportArrCountry)) {
+          arrivalCountriesCount[airportArrCountry]++;
+        } else {
+          arrivalCountriesCount[airportArrCountry] = 1;
+        }
       }
-    }
+    });
 
-    // Vérifier si l'utilisateur a visité au moins 4 des pays les plus froids
-    return visitedColdestCountriesCount >= 4;
+    // Vérifier si l'utilisateur a visité au moins 4 fois un pays, le même pays comptes
+    const countriesVisitedAtLeastFourTimes = Object.values(arrivalCountriesCount).some(count => count >= 4);
+    return countriesVisitedAtLeastFourTimes;
   } catch (error) {
     console.error("Une erreur s'est produite lors de la récupération des vols de l'utilisateur :", error);
-    return false; // Retourner false en cas d'erreur
+    return false;
   }
 }
+
+
+
 
 
 
@@ -101,32 +112,36 @@ async function hasVisitedEnoughHottestCountries(user) {
     'Hamad International Airport',
   ];
   try {
-    // Récupérer l'utilisateur avec ses vols depuis la base de données en utilisant populate
-    const userWithFlights = await User.findById(user._id).populate('flights');
+    const userWithFlights = await User.findById(user._id)
+      .populate({
+        path: 'flights',
+        populate: {
+          path: 'airportArr'
+        }
+      });
 
-    // Assurez-vous que l'utilisateur a bien ses vols
     if (!userWithFlights.flights) {
       return false;
     }
 
-    // Mapper les vols pour obtenir une liste des destinations d'arrivée
-    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.airportNameDest);
-
-
-
-    // Compter le nombre de destinations d'arrivée visitées qui font partie des pays les plus chauds
-    let visitedHottestCountriesCount = 0;
-    for (let i = 0; i < userArrivalPlaces.length; i++) {
-      if (hottestCountries.includes(userArrivalPlaces[i])) {
-        visitedHottestCountriesCount++;
+    const userFlights = userWithFlights.flights;
+    const arrivalCountriesCount = {};
+    userFlights.forEach((flight) => {
+      const airportArrCountry = flight.airportArr.name;
+      if (hottestCountries.includes(airportArrCountry)) { // Vérifier si le pays fait partie des pays les plus chauds
+        if (arrivalCountriesCount.hasOwnProperty(airportArrCountry)) {
+          arrivalCountriesCount[airportArrCountry]++;
+        } else {
+          arrivalCountriesCount[airportArrCountry] = 1;
+        }
       }
-    }
+    });
 
-    // Vérifier si l'utilisateur a visité au moins 4 des pays les plus chauds
-    return visitedHottestCountriesCount >= 4;
+    const countriesVisitedAtLeastFourTimes = Object.values(arrivalCountriesCount).filter(count => count >= 4);
+    return countriesVisitedAtLeastFourTimes.length > 0;
   } catch (error) {
     console.error("Une erreur s'est produite lors de la récupération des vols de l'utilisateur :", error);
-    return false; // Retourner false en cas d'erreur
+    return false;
   }
 }
 
@@ -147,31 +162,41 @@ async function hasVisitedEnoughFriendliestCountries(user) {
 
   try {
     // Récupérer l'utilisateur avec ses vols depuis la base de données en utilisant populate
-    const userWithFlights = await User.findById(user._id).populate('flights');
-
+    const userWithFlights = await User.findById(user._id)
+      .populate({
+        path: 'flights',
+        populate: {
+          path: 'airportArr'
+        }
+      });
+      
     // Assurez-vous que l'utilisateur a bien ses vols
     if (!userWithFlights.flights) {
       return false;
     }
 
-    // Mapper les vols pour obtenir une liste des destinations d'arrivée
-    const userArrivalPlaces = userWithFlights.flights.map((flight) => flight.airportNameDest);
-
-    // Compter le nombre de destinations d'arrivée visitées qui font partie des pays les plus friendly
-    let visitedFriendliestCountriesCount = 0;
-    for (let i = 0; i < userArrivalPlaces.length; i++) {
-      if (friendliestCountries.includes(userArrivalPlaces[i])) {
-        visitedFriendliestCountriesCount++;
+    const userFlights = userWithFlights.flights;
+    const arrivalCountriesCount = {};
+    userFlights.forEach((flight) => {
+      const airportArrCountry = flight.airportArr.name;
+      if (friendliestCountries.includes(airportArrCountry)) { // Vérifier si le pays fait partie des pays les plus amicaux
+        if (arrivalCountriesCount.hasOwnProperty(airportArrCountry)) {
+          arrivalCountriesCount[airportArrCountry]++;
+        } else {
+          arrivalCountriesCount[airportArrCountry] = 1;
+        }
       }
-    }
-
-    // Vérifier si l'utilisateur a visité au moins 4 des pays les plus friendly
-    return visitedFriendliestCountriesCount >= 4;
+    });
+    
+    // Vérifier si l'utilisateur a visité au moins 4 fois un pays parmi les plus amicaux
+    const countriesVisitedAtLeastFourTimes = Object.values(arrivalCountriesCount).filter(count => count >= 4);
+    return countriesVisitedAtLeastFourTimes.length > 0;
   } catch (error) {
     console.error("Une erreur s'est produite lors de la récupération des vols de l'utilisateur :", error);
-    return false; // Retourner false en cas d'erreur
+    return false;
   }
 }
+
 
 
 //Condition pour  le badge Five select : A SUPPRIMER ?
