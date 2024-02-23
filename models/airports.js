@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 
 //Schéma de Flag
 const airportSchema = mongoose.Schema({
-  country: String,
-  city: String,
-  name: String,
-  iataCode: String,
-  flag: String,
-  latitude: Number,
-  longitude: Number,
+  country : String,
+  city : String,
+  name : String,
+  flag : String,
+  iataCode:String,
+  latitude:Number,
+  longitude:Number,
 });
 
 //Model de Flag

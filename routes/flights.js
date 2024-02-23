@@ -19,11 +19,10 @@ router.post("/", async (req, res) => {
       arrival,
       arrivalScheduled,
       arrivalEstimated,
-      airportNameDest,
-      iataArrival,
-      iataDep,
+      airportDep,
+      airportArr,
       nbrePlaces,
-      meal,
+      meals,
     } = req.body;
 
     const newFlight = new Flight({
@@ -36,11 +35,10 @@ router.post("/", async (req, res) => {
       arrival,
       arrivalScheduled,
       arrivalEstimated,
-      airportNameDest,
-      iataArrival,
-      iataDep,
+      airportDep,
+      airportArr,
       nbrePlaces,
-      meal,
+      meals,
     });
 
     const response = await newFlight.save();
@@ -83,7 +81,9 @@ router.get('/:reservationNumber', async (req, res) => {
     const reservationNumber = req.params.reservationNumber;
     const flight = await Flight
                             .findOne({ reservationNumber })
-                            .populate('planes');
+                            .populate('planes')
+                            .populate('airportDep','iataCode')
+                            .populate('airportArr','iataCode');
 
     if (!flight) {
       return res.status(404).json({ error: 'Aucun vol trouvé avec ce numéro de réservation.' });
