@@ -3,6 +3,7 @@ require("../models/connection");
 var express = require("express");
 var router = express.Router();
 const Flight = require("../models/flights");
+const Airport = require("../models/airports");
 
 const apiKeyMovies = process.env.API_KEY_MOVIES;
 
@@ -96,6 +97,23 @@ router.get('/:reservationNumber', async (req, res) => {
   }
 });
 
+//Pour récupérer les lat et long du flight
+router.get('/map/:iataCode', async (req, res) => {
+  try {
+    const iataCode = req.params.iataCode;
+    const locMap = await Airport
+                            .findOne({ iataCode })
+                          
+    if (!locMap) {
+      return res.status(404).json({ error: 'Aucun code iata trouvé.' });
+    }
+
+    res.json({ result: true, data:locMap});
+  } catch (error) {
+    console.error('Erreur lors de la récupération du iata:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération du iata.' });
+  }
+});
 
 
 
