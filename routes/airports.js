@@ -1,6 +1,8 @@
-const Airport = require("../models/airports");
 var express = require("express");
 var router = express.Router();
+const Airport = require("../models/airports");
+const Flight = require('../models/flights');
+const User = require('../models/users')
 
 // Route POST pour créer un nouvel aéroport OK
 router.post('/', async (req, res) => {
@@ -54,5 +56,55 @@ router.post("/getFlagByArrivalPlace", async (req, res) => {
     res.status(500).json({ error: "Erreur interne du serveur" });
   }
 });
+
+
+
+//TEST ROUTE 
+router.post("/getUserFlightAirports", async (req, res) => {
+  try {
+    const userId = req.body.userId; 
+    const flightId = req.body.flightId;
+
+    // Récupérer l'utilisateur avec son ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    
+    // Récupérer les vols de l'utilisateur avec les détails de l'aéroport de départ et d'arrivée
+    const userFlights = await User.findById(userId).populate('flights');
+    
+    
+    if (!userFlights) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    
+    // Recherche du vol spécifique parmi les vols de l'utilisateur
+    const flight = userFlights.flights.find(flight => flight._id.equals(flightId));
+    
+    if (!flight) {
+      return res.status(404).json({ error: "Vol non trouvé pour cet utilisateur" });
+    }
+    
+    // Récupération des détails des aéroports associés au vol spécifique
+    const flightWithAirports = await Flight.findById(flight._id)
+      .populate('airportDep')
+      .populate('airportArr');
+    
+    if (!flightWithAirports) {
+      return res.status(404).json({ error: "Détails du vol non trouvés" });
+    }else{
+
+    res.json({ flightWithAirports: flightWithAirports });
+    }
+  } catch (error) {
+    console.error("Une erreur s'est produite :", error);
+    res.status(500).json({ error: "Erreur lors de la récupération des vols de l'utilisateur" });
+  }
+});
+
+
+
 
 module.exports = router;
