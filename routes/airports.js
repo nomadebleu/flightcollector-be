@@ -105,6 +105,43 @@ router.post("/getUserFlightAirports", async (req, res) => {
 });
 
 
+router.post("/getUserFlightAirport", async (req, res) => {
+  try {
+    const userId = req.body.userId;
+
+    // Récupérer l'utilisateur avec son ID et peupler les vols avec les détails des aéroports
+    const user = await User.findById(userId).populate({
+      path: 'flights',
+      populate: { path: 'airportDep airportArr' }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    // Récupérer les détails des aéroports associés à chaque vol de l'utilisateur
+    const userFlightAirports = user.flights.map(flight => ({
+      departureAirport: {
+        name: flight.airportDep.name,
+        country: flight.airportDep.country,
+        flag: flight.airportDep.flag,
+      },
+      arrivalAirport: {
+        name: flight.airportArr.name,
+        country: flight.airportArr.country,
+        flag: flight.airportArr.flag,
+      }
+    }));
+
+    res.json({ userFlightAirports });
+  } catch (error) {
+    console.error("Une erreur s'est produite :", error);
+    res.status(500).json({ error: "Erreur lors de la récupération des vols de l'utilisateur" });
+  }
+});
+
+
+
 
 
 module.exports = router;
