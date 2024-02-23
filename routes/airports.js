@@ -33,10 +33,10 @@ router.post('/newAirport', async (req, res) => {
 
 router.post('/getFlagByArrivalPlace', async (req, res) => {
   try {
-    const { arrivalPlace } = req.body;
+    const { airportNameDest } = req.body;
     
     // Recherche de l'aéroport en fonction du lieu d'arrivée de l'utilisateur
-    const airport = await Airport.findOne({ country: arrivalPlace });
+    const airport = await Airport.findOne({ name: airportNameDest });
 
     if (!airport) {
       return res.status(404).json({ error: "Aéroport non trouvé pour le lieu d'arrivée spécifié." });
