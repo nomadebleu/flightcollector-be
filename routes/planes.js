@@ -108,4 +108,20 @@ router.post("/addFavoris/:userId", async (req, res) => {
   }
 });
 
+//Pour récupérer un vol avec le numéro d'Immatriculation' OK
+router.get('/:immatriculation', async (req, res) => {
+  try {
+    const immatriculation = req.params.immatriculation;
+    const plane = await Plane
+                            .findOne({ immatriculation })
+                           
+    if (!plane) {
+      return res.status(404).json({ error: 'Aucun plane trouvé avec cette immatriculation' });
+    }
+    res.json({ result: true, data: plane});
+  } catch (error) {
+    console.error('Erreur lors de la récupération du plane:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération du plane.' });
+  }
+});
 module.exports = router;

@@ -97,7 +97,7 @@ router.get('/:reservationNumber', async (req, res) => {
   }
 });
 
-//Pour récupérer les lat et long du flight
+//Pour récupérer les lat et long du flight OK
 router.get('/map/:iataCode', async (req, res) => {
   try {
     const iataCode = req.params.iataCode;
