@@ -37,19 +37,29 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Route get pour récupérer tout les planes :
+//Route get pour récupérer tout les planes  OKAY
 router.get("/allPlanes", async (req, res) => {
   try {
-    const planes = await Plane.find();
-    res.json({ planes });
+    const userId = req.body.userId;
+
+    // Recherche de l'utilisateur dans la base de données
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    // Récupération de tous les avions associés à l'utilisateur
+    const planes = await Promise.all(user.planes.map(planeId => Plane.findById(planeId)));
+
+    // Réponse avec les avions trouvés dans le corps de la réponse
+    res.json(planes)
   } catch (error) {
     // En cas d'erreur, réponse d'erreur avec le code d'erreur approprié
     console.error("Erreur lors de la récupération des avions :", error);
-    res
-      .status(500)
-      .json({ error: "Erreur lors de la récupération des avions" });
+    res.status(500).json({ error: "Erreur lors de la récupération des avions" });
   }
 });
+
 
 //GET /favoris Récuperer les favoris de Planes & les types d'aircrafts
 
