@@ -38,9 +38,9 @@ router.post("/", async (req, res) => {
 });
 
 //Route get pour récupérer tout les planes  OKAY
-router.get("/allPlanes", async (req, res) => {
+router.get("/allPlanes/:userId", async (req, res) => {
   try {
-    const userId = req.body.userId;
+    const userId = req.params.userId;
 
     // Recherche de l'utilisateur dans la base de données
     const user = await User.findById(userId);
