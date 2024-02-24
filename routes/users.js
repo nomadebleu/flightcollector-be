@@ -174,7 +174,8 @@ router.put('/:userId/flight', async (req, res) => {
 router.post("/associateFlights/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { flightIds } = req.body;
+    const { flightId, planeId} = req.body;
+
 
     // Recherche de l'utilisateur dans la base de données
     const user = await User.findById(userId);
@@ -183,8 +184,14 @@ router.post("/associateFlights/:userId", async (req, res) => {
     }
 
     // Fusionner les nouveaux vols avec les vols existants de l'utilisateur
-    user.flights = [...user.flights, ...flightIds];
+    if (!user.flights.includes(flightId)) {
+      user.flights.push(flightId);
+    }
 
+    // Fusionner les nouveaux avions avec les avions existants de l'utilisateur
+    if (!user.planes.includes(planeId)) {
+      user.planes.push(planeId); 
+    }
     // Enregistre les modifications dans la base de données
     await user.save();
 
@@ -202,12 +209,15 @@ router.post("/associateFlights/:userId", async (req, res) => {
   }
 });
 
+
+
+
 // Route pour récupérer les infos de tous les vols de l'utilisateur
 router.get("/userFlightInfo/:userId", async (req, res) => {
   try {
     const userId = req.query.userId;
 
-    // Recherche de l'utilisateu r dans la base de données avec tous les vols associés
+    // Recherche de l'utilisateur dans la base de données avec tous les vols associés
     const user = await User.findById(userId).populate("flights");
     if (!user) {
       return res.status(404).json({ error: "Utilisateur non trouvé" });
