@@ -5,18 +5,27 @@ const Badge = require('../models/badges');
 const User = require('../models/users');
 
 
-//GET pour récupérer tous les badges par un id 
-router.get('/', async (req, res) => {
+// GET pour récupérer tous les badges d'un User (longueur) OKAY
+router.get('/:userId', async (req, res) => {
   try {
-    const data = await Badge.find();
-    res.json({ result: 'Tous les bages sont récupérés', data });
+    const userId = req.params.userId;
+
+    // Récupérer l'utilisateur spécifié avec les badges peuplés
+    const userWithBadges = await User.findById(userId).populate('badges');
+
+    if (!userWithBadges) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    const userWithBadgesCount = userWithBadges.badges.length;
+
+    res.json({ result: 'Badges de l\'utilisateur récupérés avec succès', dataL: userWithBadgesCount, data : userWithBadges  });
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
-    res
-      .status(500)
-      .json({ error: 'Erreur lors de la récupération des bagdes dans la db' });
+    res.status(500).json({ error: 'Erreur lors de la récupération des badges de l\'utilisateur dans la db' });
   }
 });
+
+
 
 
 //Récupérer un badge par son ID (Badge Discover) OK
@@ -37,7 +46,7 @@ router.get('/:id', async (req, res) => {
 
 
 
-// OBTENTION BADGES PAR CONDITIONS :
+// OBTENTION BADGES PAR CONDITIONS : OKAY
 
 
 // Fonction pour vérifier si l'utilisateur a des vols

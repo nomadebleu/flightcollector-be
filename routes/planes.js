@@ -61,32 +61,35 @@ router.get("/allPlanes/:userId", async (req, res) => {
 });
 
 
-//GET /favoris Récuperer les favoris de Planes & les types d'aircrafts
+//GET /aircrafts Récuperer les favoris de Planes & les types d'aircrafts OKAY
 
-router.get("/favoris", async (req, res) => {
+router.get("/aircrafts/:userId", async (req, res) => {
   try {
-    // Récupérer tous les avions marqués comme favoris
-    const favorisAvions = await Plane.find({ isFavorite: true });
+    const userId = req.params.userId;
 
-    // Récupérer les types d'avions distincts
-    const typesAircrafts = await Plane.distinct("type");
+    // Récupérer l'utilisateur spécifié avec la référence aux avions
+    const userWithAircrafts = await User.findById(userId).populate('planes');
 
-    // avions récupérés et les types d'avions distincts
+    if (!userWithAircrafts) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Extraire les avions associés à l'utilisateur
+    const aircrafts = userWithAircrafts.planes.length;
+    const aircraftsFav = userWithAircrafts.planes.filter(plane => plane.isFavorite);
+    // Récupérer le nombre d'avions favoris
+    const favorisCount = aircraftsFav.length;
     res.json({
       result: true,
-      isFavorite: favorisAvions.length,
-      typesAircrafts: typesAircrafts.length,
+      aircrafts: aircrafts,
+      aircraftsFav : favorisCount
     });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({
-        message:
-          "Erreur lors de la récupération des avions favoris et des types d'aéronefs",
-      });
+    res.status(500).json({ message: "Erreur lors de la récupération des avions associés à l'utilisateur" });
   }
 });
+
 
 //Ajoute un avion en favoris:
 router.post("/addFavoris/:userId", async (req, res) => {
@@ -123,12 +126,12 @@ router.get('/:immatriculation', async (req, res) => {
   try {
     const immatriculation = req.params.immatriculation;
     const plane = await Plane
-                            .findOne({ immatriculation })
-                           
+      .findOne({ immatriculation })
+
     if (!plane) {
       return res.status(404).json({ error: 'Aucun plane trouvé avec cette immatriculation' });
     }
-    res.json({ result: true, data: plane});
+    res.json({ result: true, data: plane });
   } catch (error) {
     console.error('Erreur lors de la récupération du plane:', error);
     res.status(500).json({ error: 'Erreur lors de la récupération du plane.' });
