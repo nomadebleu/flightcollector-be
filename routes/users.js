@@ -38,7 +38,7 @@ router.put("/password", async (req, res) => {
 
 
 
-// Route GET pour récupérer les points de l'utilisateur
+// Route GET pour récupérer les points de l'utilisateur OKAY
 router.get('/totalPoints/:userId/', async (req, res) => {
   const userId = req.params.userId;
 
@@ -61,7 +61,7 @@ router.get('/totalPoints/:userId/', async (req, res) => {
 
 
 
-//Ajout des points du badge au totalPoints du user OK
+//Ajout des points du badge au totalPoints du user OK (ne marche pas)
 router.put("/addPoints", async (req, res) => {
   try {
     // Récupére les nouveaux points à partir du corps de la requête
@@ -244,7 +244,35 @@ router.get("/userFlightInfo/:userId", async (req, res) => {
   }
 });
 
+//MODIFIER POINTS UTILISATEURS 
+router.put("/updatePoints/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { points } = req.body;
 
+    // Recherche de l'utilisateur dans la base de données
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Mettre à jour les points de l'utilisateur
+    user.points = points;
+    await user.save();
+
+    return res.json({
+      result: true,
+      message: "Points de l'utilisateur mis à jour avec succès",
+      newPoints: user.points
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des points de l'utilisateur :", error);
+    return res.status(500).json({
+      message: "Erreur lors de la mise à jour des points de l'utilisateur"
+    });
+  }
+});
 
 
 
