@@ -61,30 +61,34 @@ router.get("/allPlanes/:userId", async (req, res) => {
 });
 
 
-//GET /favoris Récuperer les favoris de Planes & les types d'aircrafts
+//GET /favoris Récuperer les favoris de Planes & les types d'aircrafts OKAY
 
-router.get("/favoris", async (req, res) => {
+router.get("/favoris/:userId", async (req, res) => {
   try {
-    // Récupérer tous les avions marqués comme favoris
-    const favorisAvions = await Plane.find({ isFavorite: true });
+    const userId = req.params.userId;
 
-    // Récupérer les types d'avions distincts
-    const typesAircrafts = await Plane.distinct("type");
+    // Recherche de l'utilisateur dans la base de données
+    const user = await User.findById(userId);
 
-    // avions récupérés et les types d'avions distincts
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Récupérer les avions associés à l'utilisateur
+    await user.populate('planes')
+    const numberOfPlanes = user.planes.length;
+
+    // Récupérer les avions favoris de l'utilisateur
+    const userFavoritePlanes = user.planes.filter(plane => plane.isFavorite).length;
+
     res.json({
       result: true,
-      isFavorite: favorisAvions.length,
-      typesAircrafts: typesAircrafts.length,
+      numberOfPlanes: numberOfPlanes,
+      userFavoritePlanes: userFavoritePlanes
     });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({
-        message:
-          "Erreur lors de la récupération des avions favoris et des types d'aéronefs",
-      });
+    res.status(500).json({ message: "Erreur lors de la récupération des avions et des favoris de l'utilisateur" });
   }
 });
 
