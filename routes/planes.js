@@ -92,11 +92,11 @@ router.get("/favoris/:userId", async (req, res) => {
   }
 });
 
-//Ajoute un avion en favoris:
+//Ajoute un avion en favoris OKAY
 
-  router.post("/addFavoris/:userId", async (req, res) => {
-    const { userId } = req.params;
-    const { planeId } = req.body;
+  router.put("/addFavoris/:userId/:planeId", async (req, res) => {
+    const { userId, planeId } = req.params;
+    
   
     try {
       // Trouver l'utilisateur
@@ -128,9 +128,10 @@ router.get("/favoris/:userId", async (req, res) => {
     }
   });
 
-  router.post("/removeFavoris/:userId", async (req, res) => {
-    const { userId } = req.params;
-    const { planeId } = req.body;
+  // Remove des Favoris OKAY
+  router.put("/removeFavoris/:userId/:planeId", async (req, res) => {
+    const { userId, planeId } = req.params;
+    
   
     try {
       // Trouver l'utilisateur
