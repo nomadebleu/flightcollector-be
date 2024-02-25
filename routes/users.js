@@ -244,11 +244,11 @@ router.get("/userFlightInfo/:userId", async (req, res) => {
   }
 });
 
-//MODIFIER POINTS UTILISATEURS 
+//MODIFIER POINTS UTILISATEURS OKAY
 router.put("/updatePoints/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { points } = req.body;
+    const { pointsToAdd } = req.body;
 
     // Recherche de l'utilisateur dans la base de données
     const user = await User.findById(userId);
@@ -257,14 +257,14 @@ router.put("/updatePoints/:userId", async (req, res) => {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
-    // Mettre à jour les points de l'utilisateur
-    user.points = points;
+    // Ajouter les points fournis aux points existants de l'utilisateur
+    user.totalPoints += pointsToAdd;
     await user.save();
 
     return res.json({
       result: true,
       message: "Points de l'utilisateur mis à jour avec succès",
-      newPoints: user.points
+      newTotalPoints: user.totalPoints
     });
   } catch (error) {
     console.error("Erreur lors de la mise à jour des points de l'utilisateur :", error);
@@ -273,6 +273,7 @@ router.put("/updatePoints/:userId", async (req, res) => {
     });
   }
 });
+
 
 
 
