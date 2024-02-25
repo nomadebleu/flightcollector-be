@@ -5,7 +5,7 @@ const Badge = require('../models/badges');
 const User = require('../models/users');
 
 
-// GET pour récupérer tous les badges d'un User (longueur) OKAY
+// GET pour récupérer tous les badges d'un User et la longueur OKAY
 router.get('/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -17,8 +17,9 @@ router.get('/:userId', async (req, res) => {
       return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
     const userWithBadgesCount = userWithBadges.badges.length;
+    const badgePictures = userWithBadges.badges.map(badge => badge.picture)
 
-    res.json({ result: 'Badges de l\'utilisateur récupérés avec succès', dataL: userWithBadgesCount, data : userWithBadges  });
+    res.json({ result: 'Badges de l\'utilisateur récupérés avec succès', CountBadges: userWithBadgesCount, badgePictures : badgePictures});
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
     res.status(500).json({ error: 'Erreur lors de la récupération des badges de l\'utilisateur dans la db' });
