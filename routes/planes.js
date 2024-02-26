@@ -93,7 +93,6 @@ router.get("/favoris/:userId", async (req, res) => {
 });
 
 //Ajoute un avion en favoris OKAY
-
   router.put("/addFavoris/:userId/:planeId", async (req, res) => {
     const { userId, planeId } = req.params;
     

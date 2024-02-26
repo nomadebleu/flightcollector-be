@@ -171,7 +171,9 @@ router.put('/:userId/flight', async (req, res) => {
   }
 });
 
-router.post("/associateFlights/:userId", async (req, res) => {
+
+//associé un vol à un utilisateur OKAY
+router.post("/associateFlights/:userId", async (req, res) => { 
   try {
     const userId = req.params.userId;
     const { flightId, planeId} = req.body;
@@ -249,6 +251,7 @@ router.put("/updatePoints/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
     const { pointsToAdd } = req.body;
+    const { pointsToRemove } = req.body;
 
     // Recherche de l'utilisateur dans la base de données
     const user = await User.findById(userId);
@@ -257,9 +260,25 @@ router.put("/updatePoints/:userId", async (req, res) => {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
-    // Ajouter les points fournis aux points existants de l'utilisateur
+    if (user.totalPoints < pointsToRemove) {
+      return res.status(400).json({ message: "L'utilisateur n'a pas suffisamment de points pour cette réduction" });
+    }
+
+    if (pointsToRemove){
+      user.totalPoints -= pointsToRemove;
+      await user.save();
+      return res.json({
+        result: true,
+        message: "Points de l'utilisateur mis à jour avec succès",
+        newTotalPoints: user.totalPoints
+      });
+    }
+
+    if (pointsToAdd){
     user.totalPoints += pointsToAdd;
     await user.save();
+    
+    }
 
     return res.json({
       result: true,
@@ -273,6 +292,7 @@ router.put("/updatePoints/:userId", async (req, res) => {
     });
   }
 });
+
 
 
 
