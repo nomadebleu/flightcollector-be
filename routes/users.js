@@ -38,7 +38,7 @@ router.put("/password", async (req, res) => {
 
 
 
-// Route GET pour récupérer les points de l'utilisateur
+// Route GET pour récupérer les points de l'utilisateur OKAY
 router.get('/totalPoints/:userId/', async (req, res) => {
   const userId = req.params.userId;
 
@@ -61,7 +61,7 @@ router.get('/totalPoints/:userId/', async (req, res) => {
 
 
 
-//Ajout des points du badge au totalPoints du user OK
+//Ajout des points du badge au totalPoints du user OK (ne marche pas)
 router.put("/addPoints", async (req, res) => {
   try {
     // Récupére les nouveaux points à partir du corps de la requête
@@ -171,10 +171,13 @@ router.put('/:userId/flight', async (req, res) => {
   }
 });
 
-router.post("/associateFlights/:userId", async (req, res) => {
+
+//associé un vol à un utilisateur OKAY
+router.post("/associateFlights/:userId", async (req, res) => { 
   try {
     const userId = req.params.userId;
-    const { flightIds } = req.body;
+    const { flightId, planeId} = req.body;
+
 
     // Recherche de l'utilisateur dans la base de données
     const user = await User.findById(userId);
@@ -183,8 +186,14 @@ router.post("/associateFlights/:userId", async (req, res) => {
     }
 
     // Fusionner les nouveaux vols avec les vols existants de l'utilisateur
-    user.flights = [...user.flights, ...flightIds];
+    if (!user.flights.includes(flightId)) {
+      user.flights.push(flightId);
+    }
 
+    // Fusionner les nouveaux avions avec les avions existants de l'utilisateur
+    if (!user.planes.includes(planeId)) {
+      user.planes.push(planeId); 
+    }
     // Enregistre les modifications dans la base de données
     await user.save();
 
@@ -202,12 +211,15 @@ router.post("/associateFlights/:userId", async (req, res) => {
   }
 });
 
+
+
+
 // Route pour récupérer les infos de tous les vols de l'utilisateur
 router.get("/userFlightInfo/:userId", async (req, res) => {
   try {
     const userId = req.query.userId;
 
-    // Recherche de l'utilisateu r dans la base de données avec tous les vols associés
+    // Recherche de l'utilisateur dans la base de données avec tous les vols associés
     const user = await User.findById(userId).populate("flights");
     if (!user) {
       return res.status(404).json({ error: "Utilisateur non trouvé" });
@@ -230,6 +242,53 @@ router.get("/userFlightInfo/:userId", async (req, res) => {
     return res.status(500).json({
       error:
         "Erreur serveur lors de la récupération des infos des vols de l'utilisateur",
+    });
+  }
+});
+
+//MODIFIER POINTS UTILISATEURS OKAY
+router.put("/updatePoints/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { pointsToAdd } = req.body;
+    const { pointsToRemove } = req.body;
+
+    // Recherche de l'utilisateur dans la base de données
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    if (user.totalPoints < pointsToRemove) {
+      return res.status(400).json({ message: "L'utilisateur n'a pas suffisamment de points pour cette réduction" });
+    }
+
+    if (pointsToRemove){
+      user.totalPoints -= pointsToRemove;
+      await user.save();
+      return res.json({
+        result: true,
+        message: "Points de l'utilisateur mis à jour avec succès",
+        newTotalPoints: user.totalPoints
+      });
+    }
+
+    if (pointsToAdd){
+    user.totalPoints += pointsToAdd;
+    await user.save();
+    
+    }
+
+    return res.json({
+      result: true,
+      message: "Points de l'utilisateur mis à jour avec succès",
+      newTotalPoints: user.totalPoints
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des points de l'utilisateur :", error);
+    return res.status(500).json({
+      message: "Erreur lors de la mise à jour des points de l'utilisateur"
     });
   }
 });

@@ -104,8 +104,8 @@ router.post("/getUserFlightAirports", async (req, res) => {
   }
 });
 
-
-router.post("/getUserFlightAirport", async (req, res) => {
+//Récupére tout les Flights Airports pour affiché les Flags : OKAY
+router.post("/getUserFlightAirport", async (req, res) => { 
   try {
     const userId = req.body.userId;
 

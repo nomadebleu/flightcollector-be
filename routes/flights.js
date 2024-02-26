@@ -4,6 +4,7 @@ var express = require("express");
 var router = express.Router();
 const Flight = require("../models/flights");
 const Airport = require("../models/airports");
+const User = require("../models/users");
 
 const apiKeyMovies = process.env.API_KEY_MOVIES;
 
@@ -62,11 +63,35 @@ router.get("/movies", (req, res) => {
     });
 });
 
-//Pour récupérer tous les flights 
-router.get('/allFlights',async(req,res) => {
+//Pour récupérer tous les flights d'un User OKAY
+router.get('/allFlights/:userId', async(req,res) => {
   try {
-    const flights = await Flight.find();
-    res.json({ result: true, data: flights });
+    const userId = req.params.userId;
+
+    const userWithFlights = await User.findById(userId).populate('flights');
+    // Vérifier si l'utilisateur existe
+    if (!userWithFlights) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    // Ensemble pour stocker les destinations uniques déjà visitées par l'utilisateur
+    const uniqueDestinations = new Set();
+
+    // Filtrer les vols vers des destinations non déjà visitées
+    const uniqueFlights = userWithFlights.flights.filter(flight => {
+      if (uniqueDestinations.has(flight.airportArr)) {
+        // La destination a déjà été visitée, ne pas inclure ce vol
+        return false;
+      } else {
+        // La destination n'a pas encore été visitée, l'ajouter à l'ensemble et inclure ce vol
+        uniqueDestinations.add(flight.airportArr);
+        return true;
+      }
+    });
+
+    // Récupérer la longueur du tableau des vols uniques
+    const uniqueFlightsCount = uniqueFlights.length;
+    res.json({ result: true, uniqueFlightsCount });
+
   } catch (error) {
     // En cas d'erreur, réponse d'erreur avec le code d'erreur approprié
     console.error("Erreur lors de la récupération des flights:", error);
