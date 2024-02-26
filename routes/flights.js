@@ -114,10 +114,21 @@ router.get('/map/:iataCode', async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la récupération du iata.' });
   }
 });
+//Pour ajouter les points du flight au flight OK
+router.put('/points', async (req, res) => {
+  try {
+    const { flightId, pointsFlight } = req.body;
+    const data = await Flight.findById(flightId);
 
+    data.points += pointsFlight;
+    await data.save();
 
-
-
+    res.json({ result: true, message:'Points du Flight updated'});
+  } catch (error) {
+    console.error('Erreur lors du update:', error);
+    res.status(500).json({ error: 'Erreur lors de la MAJ' });
+  }
+});
 
 
 module.exports = router;
