@@ -25,6 +25,7 @@ router.post("/", async (req, res) => {
       airportArr,
       nbrePlaces,
       meals,
+      points,
     } = req.body;
 
     const newFlight = new Flight({
@@ -41,6 +42,7 @@ router.post("/", async (req, res) => {
       airportArr,
       nbrePlaces,
       meals,
+      points,
     });
 
     const response = await newFlight.save();
@@ -64,11 +66,11 @@ router.get("/movies", (req, res) => {
 });
 
 //Pour récupérer tous les flights d'un User OKAY
-router.get('/allFlights/:userId', async(req,res) => {
+router.get("/allFlights/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    const userWithFlights = await User.findById(userId).populate('flights');
+    const userWithFlights = await User.findById(userId).populate("flights");
     // Vérifier si l'utilisateur existe
     if (!userWithFlights) {
       return res.status(404).json({ error: "Utilisateur non trouvé" });
@@ -77,7 +79,7 @@ router.get('/allFlights/:userId', async(req,res) => {
     const uniqueDestinations = new Set();
 
     // Filtrer les vols vers des destinations non déjà visitées
-    const uniqueFlights = userWithFlights.flights.filter(flight => {
+    const uniqueFlights = userWithFlights.flights.filter((flight) => {
       if (uniqueDestinations.has(flight.airportArr)) {
         // La destination a déjà été visitée, ne pas inclure ce vol
         return false;
@@ -91,7 +93,6 @@ router.get('/allFlights/:userId', async(req,res) => {
     // Récupérer la longueur du tableau des vols uniques
     const uniqueFlightsCount = uniqueFlights.length;
     res.json({ result: true, uniqueFlightsCount });
-
   } catch (error) {
     // En cas d'erreur, réponse d'erreur avec le code d'erreur approprié
     console.error("Erreur lors de la récupération des flights:", error);
@@ -99,48 +100,47 @@ router.get('/allFlights/:userId', async(req,res) => {
       .status(500)
       .json({ error: "Erreur lors de la récupération des flights" });
   }
-
-})
+});
 //Pour récupérer un vol avec le numéro de réservation OK
-router.get('/:reservationNumber', async (req, res) => {
+router.get("/:reservationNumber", async (req, res) => {
   try {
     const reservationNumber = req.params.reservationNumber;
-    const flight = await Flight
-                            .findOne({ reservationNumber })
-                            .populate('planes')
-                            .populate('airportDep','iataCode')
-                            .populate('airportArr','iataCode');
+    const flight = await Flight.findOne({ reservationNumber })
+      .populate("planes")
+      .populate("airportDep", "iataCode")
+      .populate("airportArr", "iataCode");
 
     if (!flight) {
-      return res.status(404).json({ error: 'Aucun vol trouvé avec ce numéro de réservation.' });
+      return res
+        .status(404)
+        .json({ error: "Aucun vol trouvé avec ce numéro de réservation." });
     }
 
     res.json({ result: true, data: flight });
   } catch (error) {
-    console.error('Erreur lors de la récupération du vol:', error);
-    res.status(500).json({ error: 'Erreur lors de la récupération du vol.' });
+    console.error("Erreur lors de la récupération du vol:", error);
+    res.status(500).json({ error: "Erreur lors de la récupération du vol." });
   }
 });
 
 //Pour récupérer les lat et long du flight OK
-router.get('/map/:iataCode', async (req, res) => {
+router.get("/map/:iataCode", async (req, res) => {
   try {
     const iataCode = req.params.iataCode;
-    const locMap = await Airport
-                            .findOne({ iataCode })
-                          
+    const locMap = await Airport.findOne({ iataCode });
+
     if (!locMap) {
-      return res.status(404).json({ error: 'Aucun code iata trouvé.' });
+      return res.status(404).json({ error: "Aucun code iata trouvé." });
     }
 
-    res.json({ result: true, data:locMap});
+    res.json({ result: true, data: locMap });
   } catch (error) {
-    console.error('Erreur lors de la récupération du iata:', error);
-    res.status(500).json({ error: 'Erreur lors de la récupération du iata.' });
+    console.error("Erreur lors de la récupération du iata:", error);
+    res.status(500).json({ error: "Erreur lors de la récupération du iata." });
   }
 });
 //Pour ajouter les points du flight au flight OK
-router.put('/points', async (req, res) => {
+router.put("/points", async (req, res) => {
   try {
     const { flightId, pointsFlight } = req.body;
     const data = await Flight.findById(flightId);
@@ -148,12 +148,11 @@ router.put('/points', async (req, res) => {
     data.points += pointsFlight;
     await data.save();
 
-    res.json({ result: true, message:'Points du Flight updated'});
+    res.json({ result: true, message: "Points du Flight updated" });
   } catch (error) {
-    console.error('Erreur lors du update:', error);
-    res.status(500).json({ error: 'Erreur lors de la MAJ' });
+    console.error("Erreur lors du update:", error);
+    res.status(500).json({ error: "Erreur lors de la MAJ" });
   }
 });
-
 
 module.exports = router;

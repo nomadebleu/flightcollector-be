@@ -8,6 +8,7 @@ const planeSchema = mongoose.Schema({
   immatriculation: String,
   age: Number,
   description: String,
+  seatMap: String,
   isFavorite: Boolean,
 });
 
