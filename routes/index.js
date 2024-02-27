@@ -53,14 +53,10 @@ router.post("/signup", async (req, res) => {
         token: uid2(32),
         totalPoints: 0,
         isConnected: true,
-        badges: ["65c25ff23511d200c07c0a95"],
       });
 
       const savedUser = await newUser.save();
-      //Populate pour récupérer les valeurs du badge
-      const populatedUser = await User.populate(savedUser, { path: "badges" });
-
-      res.json({ result: true, data: populatedUser });
+      res.json({ result: true, data: savedUser });
     }
   } catch (error) {
     console.error("Une erreur s'est produite :", error);

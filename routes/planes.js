@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Route get pour récupérer tout les planes  OKAY
+//Récupérer tous les Planes du user OKOK
 router.get("/allPlanes/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -48,8 +48,8 @@ router.get("/allPlanes/:userId", async (req, res) => {
       return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
 
-    // Récupération de tous les avions associés à l'utilisateur
-    const planes = await Promise.all(user.planes.map(planeId => Plane.findById(planeId)));
+    // Récupére tous les Planes du user
+    const planes = await Plane.find({ _id: { $in: user.planes } });
 
     // Réponse avec les avions trouvés dans le corps de la réponse
     res.json(planes)
@@ -60,8 +60,68 @@ router.get("/allPlanes/:userId", async (req, res) => {
   }
 });
 
+//ADD d'un Plane en Favoris OKOK
+router.put("/addFavoris/:userId/:planeId", async (req, res) => {
+  const { userId, planeId } = req.params;
 
-//GET /favoris Récuperer les favoris de Planes & les types d'aircrafts OKAY
+  try {
+    // Vérification du user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found"  });
+    }
+
+    // Vérification si le plane existe et update en Favoris
+    const updatedPlane = await Plane.findByIdAndUpdate(
+      planeId,
+      { isFavorite: true },
+      { new: true }
+    );
+
+    if (!updatedPlane) {
+      return res.status(404).json({ message: "Plane non trouvé avec l'ID fourni" });
+    }
+
+    res.status(200).json({ result:true, message: "Plane ajouté au User avec succès"});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de l'ajout du Plane favori au user" });
+  }
+});
+
+// REMOVE d'un Plane des Favoris OKOK
+  router.put("/removeFavoris/:userId/:planeId", async (req, res) => {
+    const { userId, planeId } = req.params;
+  
+    try {
+      //  Vérification du user
+      const user = await User.findById(userId).populate('planes');
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      let plane;
+  
+      if (planeId) {
+        // Cherche l'avion correspondant à planeId dans les Planes du User
+        plane = user.planes.find(plane => plane._id.toString() === planeId);
+  
+        if (!plane) {
+          return res.status(404).json({ message: "Plane not found with this Id" });
+        }
+        plane.isFavorite = false;// Mets isFavorite à false pour le Plane trouvé
+        await plane.save();
+      }
+  
+      res.status(200).json({ result:true, message: "Plane enlevé des favoris du user avec succès" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Erreur lors du retrait du Plane des favoris du User" });
+    }
+  });
+
+//Récuperer les favoris de Planes de l'utilisateur OKAY
 
 router.get("/favoris/:userId", async (req, res) => {
   try {
@@ -91,77 +151,6 @@ router.get("/favoris/:userId", async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la récupération des avions et des favoris de l'utilisateur" });
   }
 });
-
-//Ajoute un avion en favoris OKAY
-  router.put("/addFavoris/:userId/:planeId", async (req, res) => {
-    const { userId, planeId } = req.params;
-    
-  
-    try {
-      // Trouver l'utilisateur
-      const user = await User.findById(userId).populate('planes');
-  
-      if (!user) {
-        return res.status(404).json({ message: "Utilisateur non trouvé" });
-      }
-  
-      let plane;
-  
-      if (planeId) {
-        // Chercher l'avion correspondant à planeId dans la liste des avions de l'utilisateur
-        plane = user.planes.find(plane => plane._id.toString() === planeId);
-  
-        if (!plane) {
-          return res.status(404).json({ message: "Avion non trouvé avec l'ID fourni" });
-        }
-  
-        // Mettre isFavorite à true pour l'avion trouvé
-        plane.isFavorite = true;
-        await plane.save();
-      }
-  
-      res.status(200).json({ message: "Avion favori ajouté à l'utilisateur avec succès", fav: true });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Erreur lors de l'ajout de l'avion favori à l'utilisateur" });
-    }
-  });
-
-  // Remove des Favoris OKAY
-  router.put("/removeFavoris/:userId/:planeId", async (req, res) => {
-    const { userId, planeId } = req.params;
-    
-  
-    try {
-      // Trouver l'utilisateur
-      const user = await User.findById(userId).populate('planes');
-  
-      if (!user) {
-        return res.status(404).json({ message: "Utilisateur non trouvé" });
-      }
-  
-      let plane;
-  
-      if (planeId) {
-        // Chercher l'avion correspondant à planeId dans la liste des avions de l'utilisateur
-        plane = user.planes.find(plane => plane._id.toString() === planeId);
-  
-        if (!plane) {
-          return res.status(404).json({ message: "Avion non trouvé avec l'ID fourni" });
-        }
-  
-        // Mettre isFavorite à false pour l'avion trouvé
-        plane.isFavorite = false;
-        await plane.save();
-      }
-  
-      res.status(200).json({ message: "Avion retiré des favoris de l'utilisateur avec succès" , fav : false});
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Erreur lors du retrait de l'avion des favoris de l'utilisateur" });
-    }
-  });
-
 
 
 //Pour récupérer un vol avec le numéro d'Immatriculation' OK

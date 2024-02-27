@@ -104,36 +104,34 @@ router.post("/getUserFlightAirports", async (req, res) => {
   }
 });
 
-//Récupére tout les Flights Airports pour affiché les Flags : OKAY
-router.post("/getUserFlightAirport", async (req, res) => { 
+//Récupére tous les Flights d'un User pour afficher les Flags OKOK
+router.post("/getUserFlightAirport", async (req, res) => {
   try {
-    const userId = req.body.userId;
+    const { userId } = req.body;
 
-    // Récupérer l'utilisateur avec son ID et peupler les vols avec les détails des aéroports
     const user = await User.findById(userId).populate({
       path: 'flights',
       populate: { path: 'airportDep airportArr' }
     });
 
     if (!user) {
-      return res.status(404).json({ error: "Utilisateur non trouvé" });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    // Récupérer les détails des aéroports associés à chaque vol de l'utilisateur
-    const userFlightAirports = user.flights.map(flight => ({
+    const userFlightAirports = user.flights.map(({ airportDep, airportArr }) => ({
       departureAirport: {
-        name: flight.airportDep.name,
-        country: flight.airportDep.country,
-        flag: flight.airportDep.flag,
+        name: airportDep.name,
+        country: airportDep.country,
+        flag: airportDep.flag,
       },
       arrivalAirport: {
-        name: flight.airportArr.name,
-        country: flight.airportArr.country,
-        flag: flight.airportArr.flag,
+        name: airportArr.name,
+        country: airportArr.country,
+        flag: airportArr.flag,
       }
     }));
 
-    res.json({ userFlightAirports });
+    res.json({ result: true, userFlightAirports });
   } catch (error) {
     console.error("Une erreur s'est produite :", error);
     res.status(500).json({ error: "Erreur lors de la récupération des vols de l'utilisateur" });
