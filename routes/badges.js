@@ -5,7 +5,7 @@ const Badge = require('../models/badges');
 const User = require('../models/users');
 
 
-// GET pour récupérer tous les badges d'un User et la longueur OKAY
+//Récupérer tous les badges d'un User & le nbre de badges OKAY
 router.get('/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;

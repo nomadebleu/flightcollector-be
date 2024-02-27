@@ -36,8 +36,6 @@ router.put("/password", async (req, res) => {
   }
 });
 
-
-
 // Route GET pour récupérer les points de l'utilisateur OKAY
 router.get('/totalPoints/:userId/', async (req, res) => {
   const userId = req.params.userId;
