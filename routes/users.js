@@ -244,39 +244,33 @@ router.get("/userFlightInfo/:userId", async (req, res) => {
   }
 });
 
-//MODIFIER POINTS UTILISATEURS OKAY
+//Ajouter ou Enlever des points au totalPoints du User
 router.put("/updatePoints/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { pointsToAdd } = req.body;
-    const { pointsToRemove } = req.body;
+    const { pointsToAdd, pointsToRemove } = req.body;
 
     // Recherche de l'utilisateur dans la base de données
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    if (user.totalPoints < pointsToRemove) {
+    if (pointsToRemove && user.totalPoints < pointsToRemove) {
       return res.status(400).json({ message: "L'utilisateur n'a pas suffisamment de points pour cette réduction" });
     }
 
-    if (pointsToRemove){
+    // Modification des points de l'utilisateur
+    if (pointsToRemove) {
       user.totalPoints -= pointsToRemove;
-      await user.save();
-      return res.json({
-        result: true,
-        message: "Points de l'utilisateur mis à jour avec succès",
-        newTotalPoints: user.totalPoints
-      });
     }
 
-    if (pointsToAdd){
-    user.totalPoints += pointsToAdd;
-    await user.save();
-    
+    if (pointsToAdd) {
+      user.totalPoints += pointsToAdd;
     }
+
+    await user.save();
 
     return res.json({
       result: true,
