@@ -10,15 +10,27 @@ const token = uid2(32);
 
 const bcrypt = require("bcrypt");
 
-/*const cloudinary = require("cloudinary").v2;
-const uniqid = require("uniqid");
+const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 
 cloudinary.config({
   cloud_name: "ddreb3nm6",
   api_key: "342387261832956",
   api_secret: "lzxO7d6dYHFjVbjLR8veX1A9b-8",
-});*/
+});
+
+// CLOUDINARY
+router.post("/upload", async (req, res) => {
+  try {
+    const image = `data:imag
+    e/png;base64,${req.body.image}`;
+    const result = await cloudinary.uploader.upload(image, {});
+    res.status(200).json({ image: result.secure_url });
+  } catch (error) {
+    res.status(500).json({ error: error });
+    throw new Error(error);
+  }
+});
 
 // SIGNUP
 router.post("/signup", async (req, res) => {
