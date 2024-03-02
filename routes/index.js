@@ -19,16 +19,48 @@ cloudinary.config({
   api_secret: "lzxO7d6dYHFjVbjLR8veX1A9b-8",
 });
 
-// CLOUDINARY
+// GESTION CLOUDINARY
 router.post("/upload", async (req, res) => {
   try {
-    const image = `data:imag
-    e/png;base64,${req.body.image}`;
+    const image = `data:image/png;base64,${req.body.image}`;
     const result = await cloudinary.uploader.upload(image, {});
     res.status(200).json({ image: result.secure_url });
   } catch (error) {
     res.status(500).json({ error: error });
     throw new Error(error);
+  }
+});
+// Update Photo profil
+router.put("/putImage/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { imageUrl } = req.body;
+
+    // Recherche de l'utilisateur dans la base de données
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    // Ajouter l'URL de l'image à l'utilisateur
+    if (!user.pictureProfil) {
+      user.pictureProfil = "";
+    }
+    user.pictureProfil = imageUrl;
+    // Enregistrer les modifications dans la base de données
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Image associée à l'utilisateur avec succès" });
+  } catch (error) {
+    console.error(
+      "Erreur lors de l'association de l'image à l'utilisateur :",
+      error
+    );
+    return res.status(500).json({
+      error: "Erreur serveur lors de l'association de l'image à l'utilisateur",
+    });
   }
 });
 
@@ -63,6 +95,7 @@ router.post("/signup", async (req, res) => {
         password: hash, // Utilisez le nouveau hachage généré
         mail,
         token: uid2(32),
+        pictureProfil: "",
         totalPoints: 0,
         isConnected: true,
       });
